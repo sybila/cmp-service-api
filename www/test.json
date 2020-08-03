@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "variable": "tmp",
+      "value" : 4.123,
+      "time" : 5678.9
+    },
+    {
+      "variable": "tmp",
+      "value" : 4.567,
+      "time" : 5685.9
+    },
+    {
+      "variable": "ODE",
+      "value" : 0.0023,
+      "time" : 5685.9
+    },
+    {
+      "variable": "tmp",
+      "value" : 4.567,
+      "time" : 5685.9
+    }
+  ]
+}
