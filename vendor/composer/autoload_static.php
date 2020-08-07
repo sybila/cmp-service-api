@@ -146,7 +146,7 @@ class ComposerStaticInit05e3e3c5a6c1f1dd5790207234dc3561
         'Consistence\\UndefinedPropertyException' => __DIR__ . '/..' . '/consistence/consistence/src/exceptions/UndefinedPropertyException.php',
         'Controllers\\Abstracts\\AbstractController' => __DIR__ . '/../..' . '/app/Controllers/Abstracts/AbstractController.php',
         'Controllers\\Endpoints\\ExportExperimentController' => __DIR__ . '/../..' . '/app/Controllers/Endpoints/Experiments/ExportExperimentController.php',
-        'Controllers\\Endpoints\\ImportValuesController' => __DIR__ . '/../..' . '/app/Controllers/Endpoints/Experiments/ImportValuesController.php',
+        'Controllers\\Endpoints\\ImportExperimentController' => __DIR__ . '/../..' . '/app/Controllers/Endpoints/Experiments/ImportExperimentController.php',
         'Controllers\\Endpoints\\VersionController' => __DIR__ . '/../..' . '/app/Controllers/Endpoints/VersionController.php',
         'Libs\\DataApi' => __DIR__ . '/../..' . '/app/Libs/DataApi.php',
         'Libs\\FileSystemManager' => __DIR__ . '/../..' . '/app/Libs/FileSystemManager.php',

@@ -65,7 +65,7 @@ return array(
     'Consistence\\UndefinedPropertyException' => $vendorDir . '/consistence/consistence/src/exceptions/UndefinedPropertyException.php',
     'Controllers\\Abstracts\\AbstractController' => $baseDir . '/app/Controllers/Abstracts/AbstractController.php',
     'Controllers\\Endpoints\\ExportExperimentController' => $baseDir . '/app/Controllers/Endpoints/Experiments/ExportExperimentController.php',
-    'Controllers\\Endpoints\\ImportValuesController' => $baseDir . '/app/Controllers/Endpoints/Experiments/ImportValuesController.php',
+    'Controllers\\Endpoints\\ImportExperimentController' => $baseDir . '/app/Controllers/Endpoints/Experiments/ImportExperimentController.php',
     'Controllers\\Endpoints\\VersionController' => $baseDir . '/app/Controllers/Endpoints/VersionController.php',
     'Libs\\DataApi' => $baseDir . '/app/Libs/DataApi.php',
     'Libs\\FileSystemManager' => $baseDir . '/app/Libs/FileSystemManager.php',

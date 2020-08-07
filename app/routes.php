@@ -63,9 +63,14 @@ return function(App $app) {
 	$app->get('/version', Controllers\Endpoints\VersionController::class);
 
 
-    $app->get('/importvalues/{path}', function (Request $request, Response $response, $args) {
-        $path = $args['path'];
-        return \Controllers\Endpoints\ImportValuesController::readJson($request, $response, $path);
+    $app->get('/importexperimentdata/{expId}', function (Request $request, Response $response, $args) {
+        $expId = $args['expId'];
+        return \Controllers\Endpoints\ImportExperimentController::importData($request, $response, $expId);
+    });
+
+    $app->get('/createfolder/{expId}', function (Request $request, Response $response, $args) {
+        $expId = $args['expId'];
+        return \Controllers\Endpoints\ImportExperimentController::createFolder($request, $response, $expId);
     });
 
     $app->get('/exportexperiment/{id}', function (Request $request, Response $response, $args) {
@@ -75,6 +80,13 @@ return function(App $app) {
 
     $app->get('/exportexperimentdata/{id}', function (Request $request, Response $response, $args) {
         $id = $args['id'];
-        return \Controllers\Endpoints\ExportExperimentController::exportData($request, $response, $id);
+        return \Controllers\Endpoints\ExportExperimentController::exportData($request, $response, $id, true);
+    });
+
+    $app->get('/download/{id}', function (Request $request, Response $response, $args) {
+        $id = $args['id'];
+        //$path = "../file_system/experiments/exp_".$id."/cmp_exp" . $id . ".zip";
+        $path = "../file_system/experiments/exp_".$id."/data.csv";
+        return \Controllers\Endpoints\ExportExperimentController::downloadFile($request, $response, $path);
     });
 };

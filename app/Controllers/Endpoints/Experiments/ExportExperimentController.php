@@ -38,7 +38,7 @@ class ExportExperimentController extends AbstractController
         }
     }
 
-    public static function exportData(Request $request, Response $response, $expId)
+    public static function exportData(Request $request, Response $response, $expId, $download)
     {
         $header = array(0 => 'time');
         $data = array(array());
@@ -60,17 +60,21 @@ class ExportExperimentController extends AbstractController
                 }
                 $var_counter++;
             }
-            if(!file_exists("../file_system/experiments/exp_".$expId)){
-                FileSystemManager::mkdir("../file_system/experiments", "exp_".$expId);
+            $path = "../file_system/experiments";
+            if(!file_exists($path . "/exp_".$expId)){
+                FileSystemManager::mkdir($path, "exp_".$expId);
                 chdir("../../app");
             }
-            $fh = fopen("../file_system/experiments/exp_" . $expId . "/data.csv", "w");
+            $fh = fopen($path . "/exp_" . $expId . "/data.csv", "w");
             fputcsv($fh, $header);
             foreach ($data as $key => $fields) {
                 fputcsv($fh, $fields);
             }
             fclose($fh);
-            return self::formatOk($response, ['path' => "../file_system/experiments/exp_" . $expId . "/data.csv"]);
+            if($download){
+                FileSystemManager::downloadFile($path . "/exp_" . $expId . "/data.csv");
+            }
+            return self::formatOk($response, ['path' => $path . "/exp_" . $expId . "/data.csv"]);
         }
         return self::formatError($response, $data['code'], $data['message']);
     }
@@ -117,8 +121,9 @@ class ExportExperimentController extends AbstractController
                 chdir("../../app");
             }
             $xml->save("../file_system/experiments/exp_".$expId."/metadata.xml");
-            self::exportData($request, $response, $expId);
+            self::exportData($request, $response, $expId, false);
             self::prepareZip($expId);
+            FileSystemManager::downloadFile("../file_system/experiments/exp_" . $expId ."/cmp_exp" . $expId . ".zip");
             return self::formatOk($response, ['path' => "../file_system/experiments/exp_".$expId."/cmp_exp" . $expId . ".zip"]);
         }
         return self::formatError($response, $data['code'], $data['message']);
