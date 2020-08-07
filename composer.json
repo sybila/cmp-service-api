@@ -16,7 +16,8 @@
 		"ext-pdo": "*",
       	"ext-simplexml": "*",
 		"ext-curl": "*",
-		"ext-dom": "*"
+		"ext-dom": "*",
+		"ext-zip": "*"
     },
 	"autoload": {
 		"classmap": ["app/"]

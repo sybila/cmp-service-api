@@ -72,4 +72,9 @@ return function(App $app) {
         $id = $args['id'];
         return \Controllers\Endpoints\ExportExperimentController::exportExperiment($request, $response, $id);
     });
+
+    $app->get('/exportexperimentdata/{id}', function (Request $request, Response $response, $args) {
+        $id = $args['id'];
+        return \Controllers\Endpoints\ExportExperimentController::exportData($request, $response, $id);
+    });
 };

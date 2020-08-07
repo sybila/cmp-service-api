@@ -7,14 +7,72 @@ use DOMDocument;
 use Libs\DataApi;
 use Libs\FileSystemManager;
 use Libs\ReadFile;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use ZipArchive;
 
 class ExportExperimentController extends AbstractController
 {
+    private static function prepareZip(int $expId){
+        $rootPath = realpath("../file_system/experiments/exp_".$expId."/images");
+        $zip = new ZipArchive;
+        if ($zip->open("../file_system/experiments/exp_".$expId."/cmp_exp" . $expId . ".zip", ZipArchive::CREATE) === TRUE) {
+            $zip->addFile("../file_system/experiments/exp_".$expId."/metadata.xml", 'metadata.xml');
+            $zip->addFile("../file_system/experiments/exp_".$expId."/data.csv", 'data.csv');
+            if(file_exists($rootPath)) {
+                $files = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($rootPath),
+                    RecursiveIteratorIterator::LEAVES_ONLY
+                );
+                foreach ($files as $name => $file) {
+                    if (!$file->isDir()) {
+                        $filePath = $file->getRealPath();
+                        $relativePath = substr($filePath, strlen($rootPath) + 1);
+                        $zip->addFile($filePath, "images/" . $relativePath);
+                    }
+                }
+            }
+            $zip->close();
+        }
+    }
+
     public static function exportData(Request $request, Response $response, $expId)
     {
-        //return self::formatOk($response, ReadFile::readJsonFile($path));
+        $header = array(0 => 'time');
+        $data = array(array());
+        $vars = DataApi::get("experiments/". $expId. "/variables");
+        if($vars['status'] == 'ok') {
+            $var_counter = 1;
+            foreach ($vars['data'] as $var) {
+                array_push($header, $var['name']);
+                $vals = DataApi::get("experiments/" . $expId . "/variables/" . $var['id'] . "/values");
+                foreach ($vals['data'] as $val) {
+                    if(array_key_exists(strval($val['time']), $data)){
+                        $data[strval($val['time'])][$var_counter] = $val['value'];
+                    } else{
+                        $row = array_fill(0, count($vars['data']), "");
+                        $row[0] = $val['time'];
+                        $row[$var_counter] =  $val['value'];
+                        $data[strval($val['time'])] = $row;
+                    }
+                }
+                $var_counter++;
+            }
+            if(!file_exists("../file_system/experiments/exp_".$expId)){
+                FileSystemManager::mkdir("../file_system/experiments", "exp_".$expId);
+                chdir("../../app");
+            }
+            $fh = fopen("../file_system/experiments/exp_" . $expId . "/data.csv", "w");
+            fputcsv($fh, $header);
+            foreach ($data as $key => $fields) {
+                fputcsv($fh, $fields);
+            }
+            fclose($fh);
+            return self::formatOk($response, ['path' => "../file_system/experiments/exp_" . $expId . "/data.csv"]);
+        }
+        return self::formatError($response, $data['code'], $data['message']);
     }
 
     public static function exportExperiment(Request $request, Response $response, $expId)
@@ -56,13 +114,13 @@ class ExportExperimentController extends AbstractController
             }
             if(!file_exists("../file_system/experiments/exp_".$expId)){
                 FileSystemManager::mkdir("../file_system/experiments", "exp_".$expId);
-                $xml->save("exp_".$expId."/metadata.xml");
-            } else{
-                $xml->save("../file_system/experiments/exp_".$expId."/metadata.xml");
+                chdir("../../app");
             }
-            return self::formatOk($response, ['path' => "../file_system/experiments/exp_".$expId."/metadata.xml"]);
+            $xml->save("../file_system/experiments/exp_".$expId."/metadata.xml");
+            self::exportData($request, $response, $expId);
+            self::prepareZip($expId);
+            return self::formatOk($response, ['path' => "../file_system/experiments/exp_".$expId."/cmp_exp" . $expId . ".zip"]);
         }
         return self::formatError($response, $data['code'], $data['message']);
     }
-
 }
