@@ -47,7 +47,7 @@ class ExportExperimentController extends AbstractController
             $var_counter = 1;
             foreach ($vars['data'] as $var) {
                 array_push($header, $var['name']);
-                $vals = DataApi::get("experiments/" . $expId . "/variables/" . $var['id'] . "/values");
+                $vals = DataApi::get("experiments/" . $expId . "/variables/" . $var['id'] . "/values?sort[time]=asc");
                 foreach ($vals['data'] as $val) {
                     if(array_key_exists(strval($val['time']), $data)){
                         $data[strval($val['time'])][$var_counter] = $val['value'];

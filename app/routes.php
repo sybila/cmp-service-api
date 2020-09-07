@@ -54,39 +54,50 @@ class RouteHelper
 }
 
 return function(App $app) {
-	// main
-	/*$app->get('/', function (Request $request, Response $response, $args) {
-        return $response->withRedirect('/version');
-	});*/
 
 	// version
 	$app->get('/version', Controllers\Endpoints\VersionController::class);
 
 
-    $app->get('/importexperimentdata/{expId}', function (Request $request, Response $response, $args) {
+    /**
+     * Experiments
+     */
+    //Import
+    $app->post('/experiment/importdata/{expId}', function (Request $request, Response $response, $args) {
         $expId = $args['expId'];
         return \Controllers\Endpoints\ImportExperimentController::importData($request, $response, $expId);
     });
 
-    $app->get('/createfolder/{expId}', function (Request $request, Response $response, $args) {
+    $app->post('/experiment/uploadfile/{expId}', function (Request $request, Response $response, $args) {
+        $expId = $args['expId'];
+        return \Controllers\Endpoints\ImportExperimentController::uploadFile($request, $response, $expId);
+    });
+
+    $app->get('/experiment/rawdata/{expId}/{referentialVar}/{count}', function (Request $request, Response $response, $args) {
+        $expId = $args['expId'];
+        $referentialVar = $args['referentialVar'];
+        $count = $args['count'];
+        return \Controllers\Endpoints\ImportExperimentController::getRawData($request, $response, $expId, $referentialVar, $count);
+    });
+
+    $app->get('/experiment/readheader/{expId}', function (Request $request, Response $response, $args) {
+        $expId = $args['expId'];
+        return \Controllers\Endpoints\ImportExperimentController::chooseReferentialVariable($request, $response, $expId);
+    });
+
+    $app->post('/experiment/createfolder/{expId}', function (Request $request, Response $response, $args) {
         $expId = $args['expId'];
         return \Controllers\Endpoints\ImportExperimentController::createFolder($request, $response, $expId);
     });
 
-    $app->get('/exportexperiment/{id}', function (Request $request, Response $response, $args) {
+    //Export
+    $app->get('/experiment/export/{id}', function (Request $request, Response $response, $args) {
         $id = $args['id'];
         return \Controllers\Endpoints\ExportExperimentController::exportExperiment($request, $response, $id);
     });
 
-    $app->get('/exportexperimentdata/{id}', function (Request $request, Response $response, $args) {
+    $app->get('/experiment/exportdata/{id}', function (Request $request, Response $response, $args) {
         $id = $args['id'];
         return \Controllers\Endpoints\ExportExperimentController::exportData($request, $response, $id, true);
-    });
-
-    $app->get('/download/{id}', function (Request $request, Response $response, $args) {
-        $id = $args['id'];
-        //$path = "../file_system/experiments/exp_".$id."/cmp_exp" . $id . ".zip";
-        $path = "../file_system/experiments/exp_".$id."/data.csv";
-        return \Controllers\Endpoints\ExportExperimentController::downloadFile($request, $response, $path);
     });
 };
