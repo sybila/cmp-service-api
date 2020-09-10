@@ -290,4 +290,15 @@ class RuleClassificationException extends ApiException
 	}
 }
 
+class AccessForbiddenException extends ApiException
+{
+    const CODE = 403;
+
+    public function __construct(string $msg, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage('Access denied. %s', $msg);
+    }
+}
+
 

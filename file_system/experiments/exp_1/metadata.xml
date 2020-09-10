@@ -1,0 +1,21 @@
+<?xml version="0.1"?>
+<experiment>
+  <name>[PhenoTurbi] Chlorella C-256 {Chris-Juelich}, R2</name>
+  <description>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin in tellus sit amet nibh dignissim sagittis. Proin pede metus, vulputate nec, fermentum fringilla, vehicula vitae, justo. Donec vitae arcu. Mauris tincidunt sem sed arcu. Etiam neque. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Fusce dui leo, imperdiet in, aliquam sit amet, feugiat eu, orci. Phasellus faucibus molestie nisl. Fusce consectetuer risus a nunc.</description>
+  <protocol/>
+  <inserted>2020-04-14T09:54:36+02:00</inserted>
+  <started>2019-12-18T12:45:43+01:00</started>
+  <status>private</status>
+  <organism id="51">
+    <name>Chlorella C-256</name>
+    <code>C-256</code>
+  </organism>
+  <devices>
+    <device id="1">
+      <name>DoAB-PBR01</name>
+    </device>
+    <device id="2">
+      <name>GasAnalyser</name>
+    </device>
+  </devices>
+</experiment>

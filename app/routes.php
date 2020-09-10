@@ -82,7 +82,7 @@ return function(App $app) {
 
     $app->get('/experiment/readheader/{expId}', function (Request $request, Response $response, $args) {
         $expId = $args['expId'];
-        return \Controllers\Endpoints\ImportExperimentController::chooseReferentialVariable($request, $response, $expId);
+        return \Controllers\Endpoints\ImportExperimentController::readHeader($request, $response, $expId);
     });
 
     $app->post('/experiment/createfolder/{expId}', function (Request $request, Response $response, $args) {

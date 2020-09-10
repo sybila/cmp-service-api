@@ -1,0 +1,9 @@
+/.idea
+nbproject/
+settings.local.php
+/vendor
+/composer.lock
+/www/docs
+/config/*.priv
+/config/*.pub
+.htaccess
