@@ -100,4 +100,15 @@ return function(App $app) {
         $id = $args['id'];
         return \Controllers\Endpoints\ExportExperimentController::exportData($request, $response, $id, true);
     });
+
+    $app->get('/convertUnit/{unitFromName}/{unitToName}', function (Request $request, Response $response, $args) {
+        return \Controllers\Endpoints\ConvertUnitsController::fromUnitToUnit($request, $response, $args);
+    });
+
+    $app->get('/visualizer/{model}/{id}', function (Request $request, Response $response, $args) {
+        $id = $args['id'];
+        $isModel = $args['model'];
+        return \Controllers\Endpoints\Visualizer::getChart($request, $response, $id, $isModel);
+    });
+
 };

@@ -301,4 +301,26 @@ class AccessForbiddenException extends ApiException
     }
 }
 
+class OperationFailedException extends ApiException
+{
+    const CODE = 403;
+
+    public function __construct(string $msg, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage('Operation failed. %s', $msg);
+    }
+}
+
+class NonExistentVariableException extends ApiException
+{
+    const CODE = 204;
+
+    public function __construct(string $msg, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage("Variable doesn't exist. Variable name: %s", $msg);
+    }
+}
+
 

@@ -1,0 +1,25 @@
+<?php
+
+
+namespace Controllers\Endpoints;
+
+
+use Controllers\Abstracts\AbstractController;
+use Slim\Http\Request;
+use Slim\Http\Response;
+
+class Visualizer extends AbstractController
+{
+    public static function getChart(Request $request, Response $response, $id, $model){
+        $object = null;
+        if(!$model){
+            $object = new ExperimentChartData($request, $id);
+        } else{
+            return self::formatOk($response, ["Models not implemented."]);
+        }
+        return self::formatOk($response, $object->getContentChart());
+    }
+
+
+
+}

@@ -12,32 +12,8 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use ZipArchive;
 
-class ExportExperimentController extends AbstractController
+class ExportExperimentController extends ExperimentAccess
 {
-    /**
-     * Check access by access token
-     *
-     * Throw error if user doesn't have access else return access token
-     *
-     * @param Request $request
-     * @param $exp_id
-     * @return string access token
-     * @throws AccessForbiddenException
-     */
-    private static function checkAccess(Request $request, $exp_id){
-        $access_token = $request->getHeader("HTTP_AUTHORIZATION");
-        if(empty($access_token)){
-            $access_token = "";
-        } else{
-            $access_token = $access_token[0];
-        }
-        $access = DataApi::get("/experiments/". $exp_id, $access_token);
-        if($access['status'] !== 'ok'){
-            throw new AccessForbiddenException("Not authorized.");
-        }
-        return $access_token;
-    }
-
     /**
      * Prepare ZIP
      *
