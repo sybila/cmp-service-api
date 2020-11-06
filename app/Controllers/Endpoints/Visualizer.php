@@ -8,6 +8,7 @@ use Controllers\Abstracts\AbstractController;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+//generate json for visualisation (model/ experiment)
 class Visualizer extends AbstractController
 {
     public static function getChart(Request $request, Response $response, $id, $model){
