@@ -57,6 +57,7 @@ class ExperimentChartData extends ExperimentAccess
         return $arr[$mid]['value'];
     }
 
+    //Get list of all variables
     private function getExperimentVariables(){
         $vars = DataApi::get("experiments/". $this->expId. "/variables", $this->accessToken);
         if($vars['status'] == 'ok'){
