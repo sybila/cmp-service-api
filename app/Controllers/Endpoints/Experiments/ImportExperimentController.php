@@ -31,7 +31,7 @@ class ImportExperimentController extends ExperimentAccess
             throw new AccessForbiddenException("Guest can't import.");
         }
 
-        $access = DataApi::get('/experiments/'.$exp_id, $access_token[0]);
+        $access = DataApi::get('experiments/'.$exp_id, $access_token[0]);
         if(!$access){
             throw new OperationFailedException("Authorization.");
         }
@@ -221,41 +221,38 @@ class ImportExperimentController extends ExperimentAccess
                 foreach ($request->getParsedBody()['variables'] as $var) {
                      !($var_id = array_search($var['name_in_file'], $header)) ?: $var_ids[$var['name_in_file']] = $var_id;
                 }
-
                 $vals = fgetcsv($handle, 1000, ',');
                 while ($vals !== false) {
-                    $bodies = [];
-                    $urls   = [];
-                    for ($i = 0; $i < 30; $i++) {
+                    $bodies = ['values' => array()];
+                    for ($i = 0; $i < 100; $i++) {
+                        $counter = 0;
                         foreach ($var_ids as $var_name => $var_id) {
-                            if (array_key_exists($ref_var_id, $vals) && array_key_exists($var_id, $vals)) {
+                            if ($vals[$ref_var_id] != "" && $vals[$var_id] != "") {
                                 $body = [
+                                    'variableId' => $vars_to_send[$var_name],
                                     'time'  => $vals[$ref_var_id],
                                     'value' => $vals[$var_id],
                                 ];
-                                $url   = 'experiments/'.$exp_id.'/variables/'.$vars_to_send[$var_name].'/values';
-                                DataApi::post($url, json_encode($body), $access_token);
+                                $bodies['values'][] = $body;
                             }
                         }
-
+                        //exit();
                         if (($vals = fgetcsv($handle, 1000, ',')) === false) {
                             break;
                         }
                     }
-
-                    //$rsp = DataApi::multiPost($urls, $bodies, $request->getParsedBody()['skip_errors'], $access_token);
-                    if ($rsp['status'] != 'ok') {
+                    $rsp = DataApi::post("experiment/values", json_encode($bodies), $access_token);
+                    /*if ($rsp['status'] != 'ok') {
                         DataApi::delete('experiment/'.$exp_id.'/data', $access_token);
                         return self::formatError(
                             $response,
                             500,
                             'On line '.$rsp['error']['line'].', time: '.$rsp['error']['data']['time'].' ,value: '.$rsp['error']['data']['value']
                         );
-                    }
+                    }*/
                 }//end while
-
                 ini_set('max_execution_time', '30');
-                return self::formatOk($response, $rsp['warnings']);
+                return self::formatOk($response, $rsp   );
             }//end if
         }//end if
 
