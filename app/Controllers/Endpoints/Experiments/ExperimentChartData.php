@@ -26,6 +26,7 @@ class ExperimentChartData extends ExperimentAccess
         $this->accessToken = self::checkAccess($request, $expId);
     }
 
+    //find the nearest value before time
     private function binarySearchTime($arr, $key)
     {
         $n = count($arr);
