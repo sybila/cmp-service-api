@@ -22,6 +22,7 @@ class ExperimentChartData extends ExperimentAccess
     public function __construct(Request $request, $expId){
         $this->xMin = PHP_FLOAT_MAX;
         $this->expId = $expId;
+        // check user can access experiment
         $this->accessToken = self::checkAccess($request, $expId);
     }
 
