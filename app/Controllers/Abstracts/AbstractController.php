@@ -7,7 +7,7 @@ abstract class AbstractController
 {
 	protected static function formatOk(Response $response, array $data = null): Response
 	{
-		return $response->withStatus(200)->withJson([
+		return $response->withHeader('Content-type', 'application/json')->withStatus(200)->withJson([
 			'status' => 'ok',
 			'code' => 200,
 			'data' => $data,

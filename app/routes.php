@@ -58,7 +58,6 @@ return function(App $app) {
 	// version
 	$app->get('/version', Controllers\Endpoints\VersionController::class);
 
-
     /**
      * Experiments
      */
@@ -108,7 +107,10 @@ return function(App $app) {
     $app->get('/visualizer/{model}/{id}', function (Request $request, Response $response, $args) {
         $id = $args['id'];
         $isModel = $args['model'];
-        return \Controllers\Endpoints\Visualizer::getChart($request, $response, $id, $isModel);
+        /*dump(\Controllers\Endpoints\Visualizer::getChart($request,
+            $response->withHeader('Content-type', 'application/json'), $id, $isModel)->getHeader('Content-type')); exit;*/
+        return \Controllers\Endpoints\Visualizer::getChart($request,
+            $response->withHeader('Content-type', 'application/json'), $id, $isModel);
     });
 
 };
