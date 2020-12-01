@@ -25,10 +25,12 @@ class ExperimentAccess extends AbstractController
      */
     protected static function checkAccess(Request $request, $exp_id){
         $access_token = $request->getHeader("HTTP_AUTHORIZATION");
-        if(!empty($access_token)){
+        if(!empty($access_token)) {
             $access_token = $access_token[0];
+        } else{
+            $access_token = null;
         }
-        $access = DataApi::get("/experiments/". $exp_id, $access_token);
+        $access = DataApi::get("experiments/". $exp_id, $access_token);
         if($access['status'] != 'ok'){
             throw new AccessForbiddenException("Not authorized.");
         }

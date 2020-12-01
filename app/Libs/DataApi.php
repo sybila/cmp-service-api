@@ -9,18 +9,22 @@ class DataApi{
      *
      * This method get data from data api
      *
-     * @param string url
-     * @param string url
+     * @param string path
+     * @param string|null $access_token
      * @return array
      * @throws OperationFailedException
      */
-    public static function get(string $path, string $access_token)
+    public static function get(string $path, ?string $access_token)
     {
         $config = require __DIR__ . '/../../app/settings.local.php';
         $c = new Container($config);
         $ch = curl_init($c['settings']['data_api_url'] . $path);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', "Authorization: " . $access_token));
+        if($access_token != null){
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', "Authorization: " . $access_token));
+        } else{
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+        }
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         $json_data = curl_exec($ch);
