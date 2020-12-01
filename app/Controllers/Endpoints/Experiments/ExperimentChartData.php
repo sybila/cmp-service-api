@@ -108,17 +108,15 @@ class ExperimentChartData extends ExperimentAccess
         }
     }
 
-    function random_color_part() {
-        return str_pad( dechex( mt_rand( 0, 255 ) ), 2, '0', STR_PAD_LEFT);
-    }
-
-    function random_color() {
-        return $this->random_color_part() . $this->random_color_part() . $this->random_color_part();
+    function random_color($id) {
+        return substr(md5($id), 0, 6);
     }
 
     private function createLegend(){
+        $color = 0;
         foreach($this->variablesList as $var){
-            $this->legend[] = ['name'=>$var['name'], 'color'=> $this->random_color()];
+            $this->legend[] = ['name'=>$var['name'], 'color'=> $this->random_color($color)];
+            $color+=1;
         }
     }
 
