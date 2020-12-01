@@ -11,6 +11,11 @@ var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 
+var phpSettings = fs.readFileSync('../settings.local.php', 'utf8');
+let regex = /'not_psw' => (.*)/g;
+let res = regex.exec(phpSettings);
+var psw = res[1];
+
 app.listen(9001);
 
 function handler (req, res) {
@@ -59,7 +64,7 @@ io.on('connection', function (socket) {
 function checkKey(key) {
     let decode = Buffer.from(key, 'base64').toString();
     let credentials = decode.split(':',2);
-    if ((credentials[1]) === 'confusion_of_the_highest_order') {
+    if ((credentials[1]) === psw) {
         return Number.isInteger(parseInt(credentials[0])) ? credentials[0] : -1;
     }
     else {
