@@ -116,7 +116,7 @@ class ExperimentChartData extends ExperimentAccess
         $color = 0;
         foreach($this->variablesList as $var){
             $this->legend[] = ['name'=>$var['name'], 'color'=> $this->random_color($color)];
-            $color+=1;
+            $color+=2;
         }
     }
 
