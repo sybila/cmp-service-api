@@ -15,6 +15,7 @@ var phpSettings = fs.readFileSync('../settings.local.php', 'utf8');
 let regex = /'not_psw' => (.*)/g;
 let res = regex.exec(phpSettings);
 var psw = res[1];
+psw = psw.substring(1, psw.length-1);
 
 app.listen(9001);
 
