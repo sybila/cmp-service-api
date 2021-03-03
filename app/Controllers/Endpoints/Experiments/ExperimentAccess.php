@@ -5,6 +5,7 @@ namespace Controllers\Endpoints;
 
 
 use App\Exceptions\AccessForbiddenException;
+use App\Exceptions\OperationFailedException;
 use Controllers\Abstracts\AbstractController;
 use Libs\DataApi;
 use Slim\Http\Request;
@@ -21,7 +22,7 @@ class ExperimentAccess extends AbstractController
      * @param Request $request
      * @param $exp_id
      * @return string access token
-     * @throws AccessForbiddenException
+     * @throws AccessForbiddenException|OperationFailedException
      */
     protected static function checkAccess(Request $request, $exp_id){
         $access_token = $request->getHeader("HTTP_AUTHORIZATION");

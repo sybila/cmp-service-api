@@ -1,4 +1,5 @@
 <?php
+
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -113,4 +114,22 @@ return function(App $app) {
             $response->withHeader('Content-type', 'application/json'), $id, $isModel);
     });
 
+    $app->get('/analysis', function (Request $request, Response $response, $args){
+        return \Controllers\Endpoints\AnalysisManager::responseListofAnalysis($response);
+    });
+
+    $app->get('/analysisPrescription/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\AnalysisManager::responsePrescription($response, $name);
+    });
+
+    $app->get('/analysisAnnotation/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\AnalysisManager::responseAnnotation($response, $name);
+    });
+
+    $app->post('/runAnalysis/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\AnalysisManager::responseRunAnalysis($response, $request, $name);
+    });
 };

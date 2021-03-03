@@ -301,6 +301,17 @@ class AccessForbiddenException extends ApiException
     }
 }
 
+class NonExistingAnalysisMethod extends ApiException
+{
+    const CODE = 404;
+
+    public function __construct(string $msg, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage("Analysis %s doesn't exist.", $msg);
+    }
+}
+
 class OperationFailedException extends ApiException
 {
     const CODE = 403;
