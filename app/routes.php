@@ -123,11 +123,6 @@ return function(App $app) {
         return \Controllers\Endpoints\AnalysisManager::responsePrescription($response, $name);
     });
 
-    $app->get('/analysisAnnotation/{name}', function (Request $request, Response $response, $args){
-        $name = $args['name'];
-        return \Controllers\Endpoints\AnalysisManager::responseAnnotation($response, $name);
-    });
-
     $app->post('/runAnalysis/{name}', function (Request $request, Response $response, $args){
         $name = $args['name'];
         return \Controllers\Endpoints\AnalysisManager::responseRunAnalysis($response, $request, $name);

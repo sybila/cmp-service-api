@@ -17,8 +17,10 @@
       	"ext-simplexml": "*",
 		"ext-curl": "*",
 		"ext-dom": "*",
-		"ext-zip": "*"
-    },
+		"ext-zip": "*",
+		"gtjamesa/php-zscore" : "*",
+		"markrogoyski/math-php": "1.*"
+	},
 	"autoload": {
 		"classmap": ["app/"]
 	},
