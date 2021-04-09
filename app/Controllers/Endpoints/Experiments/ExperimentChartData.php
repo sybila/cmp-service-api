@@ -18,6 +18,7 @@ class ExperimentChartData extends ExperimentAccess
     private $lines = [];
     private $variablesList = [];
     private $accessToken = "";
+    private $graphsets;
 
     public function __construct(Request $request, $expId){
         $this->xMin = PHP_FLOAT_MAX;
@@ -104,6 +105,7 @@ class ExperimentChartData extends ExperimentAccess
     private function getExperimentName(){
         $exp = DataApi::get("experiments/". $this->expId, $this->accessToken);
         if($exp['status'] == 'ok'){
+            $this->graphsets = $exp['data']['graphsets'];
             return $exp['data']['name'];
         }
     }
@@ -118,6 +120,31 @@ class ExperimentChartData extends ExperimentAccess
             $this->legend[] = ['name'=>$var['name'], 'color'=> $this->random_color($color)];
             $color+=2;
         }
+    }
+
+    private function createGraphsets(){
+        $graphsets = [];
+        array_push($graphsets, ["name" => "All",
+            "datasets" => array_fill(0, count($this->variablesList), True)]);
+        foreach ($this->graphsets as $gs) {
+            $visualizedDataset = [];
+            foreach ($this->variablesList as $var) {
+                $found = false;
+                foreach ($gs['variables'] as $gvar) {
+                    if ($var['id'] === $gvar['id']) {
+                        array_push($visualizedDataset, $gvar['visualize']);
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    array_push($visualizedDataset, false);
+                }
+            }
+            array_push($graphsets, ["name" => $gs['name'],
+                "datasets" => $visualizedDataset]);
+        }
+        return $graphsets;
     }
 
     public function getContentChart(){
@@ -137,10 +164,11 @@ class ExperimentChartData extends ExperimentAccess
                     "data"=>$data
             ]],
             "legend"=> $this->legend,
-            "graphsets"=>[
-                ["name"=>"All",
-                    "datasets"=>array_fill(0, count($this->variablesList), True)]
-            ],
+//            "graphsets"=>[
+//                ["name"=>"All",
+//                    "datasets"=>array_fill(0, count($this->variablesList), True)]
+//            ],
+            "graphsets" => $this->createGraphsets(),
             "legendItems"=>null,
             "datasetsVisibility"=>null];
     }
