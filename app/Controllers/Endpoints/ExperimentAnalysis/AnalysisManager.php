@@ -38,7 +38,7 @@ class AnalysisManager extends AbstractController
      * @return Response
      * @throws NonExistingAnalysisMethod
      */
-    public static function responsePrescription(Response $response, string $name): Response
+    public static function responsePrescription(Response $response, string $name): \Slim\Http\Response
     {
         return self::formatOk($response, self::getPrescription($name));
     }

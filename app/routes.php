@@ -120,7 +120,8 @@ return function(App $app) {
 
     $app->get('/analysisPrescription/{name}', function (Request $request, Response $response, $args){
         $name = $args['name'];
-        return \Controllers\Endpoints\AnalysisManager::responsePrescription($response, $name);
+        return \Controllers\Endpoints\AnalysisManager::responsePrescription($response->withHeader('Content-type', 'application/json'),
+            $name);
     });
 
     $app->post('/runAnalysis/{name}', function (Request $request, Response $response, $args){
