@@ -113,7 +113,7 @@ class AnalysisManager extends AbstractController
                 $description = $annotation['params'][$param->name]['description'];
             }
             $result[] = array('name' => self::convertMethodNameToAnalysisName($param->name),
-                              'type' => '' . $param->getType(),
+                              'type' => '' . $param->getType()->__toString(),
                               'description'=> $description);
         }
         return array('name' => $name,
