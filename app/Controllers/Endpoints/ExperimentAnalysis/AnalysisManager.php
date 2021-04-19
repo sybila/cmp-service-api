@@ -106,7 +106,7 @@ class AnalysisManager extends AbstractController
             if($param->name == "accessToken"){
                 continue;
             }
-            $result[] = array('name' => $param->name, 'type' => '' . $param->getType());
+            $result[] = array('name' => $param->name, 'type' => '' . $param->getType()->__toString());
         }
         return ['name' => $name, 'inputs' => $result, 'output' => ''. $f->getReturnType()];
     }

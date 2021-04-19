@@ -1,5 +1,6 @@
 <?php
 
+use Controllers\Endpoints\ImportSBML;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -132,4 +133,10 @@ return function(App $app) {
         $name = $args['name'];
         return \Controllers\Endpoints\AnalysisManager::responseRunAnalysis($response, $request, $name);
     });
+
+    /**
+     * Models
+     */
+    $app->post('/models/import/sbml', ImportSBML::class . ':parseSBMLtoJson');
+
 };

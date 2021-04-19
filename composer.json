@@ -17,8 +17,10 @@
       	"ext-simplexml": "*",
 		"ext-curl": "*",
 		"ext-dom": "*",
-		"ext-zip": "*"
-    },
+		"ext-zip": "*",
+      	"ext-xsl": "*",
+		"ext-libxml": "*"
+	},
 	"autoload": {
 		"classmap": ["app/"]
 	},
