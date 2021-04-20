@@ -192,6 +192,26 @@ class AnalysisLib{
         return $coefficients;
     }
 
+    public static function visualizeData(string $analysisName, array $data, array $legend){
+        $graphsets = [];
+        array_push($graphsets, ["name" => "All",
+            "datasets" => array_fill(0, count($data) -1, True)]);
+        return [
+            'model' => false,
+            'id' => 0,
+            'name' => $analysisName,
+            "xAxisName"=>"Time",
+            "yAxisName"=>"Species [molecules/cell]",
+            "datasets"=>[[
+                "name" => $analysisName,
+                "data"=>$data
+            ]],
+            "legend"=> $legend,
+            "graphsets" => $graphsets,
+            "legendItems"=>null,
+            "datasetsVisibility"=>null];
+    }
+
     public static function fitSine(array $yList, float $freq){
         $b = array_map(null, ...$yList);
         $rows = array();

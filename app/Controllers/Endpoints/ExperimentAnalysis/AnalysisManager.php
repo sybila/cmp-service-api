@@ -29,6 +29,8 @@ class AnalysisManager extends AbstractController
      */
     public static function responseRunAnalysis(Response $response, Request $request, string $name): \Slim\Http\Response
     {
+        print_r($response);
+        exit;
         return self::formatOk($response, self::runAnalysis($request, $name));
     }
 
@@ -114,13 +116,13 @@ class AnalysisManager extends AbstractController
             }
             $result[] = array('key' => $param->name,
                               'name' => self::convertMethodNameToAnalysisName($param->name),
-                              'type' => '' . $param->getType()->__toString(),
+                              'type' => '' . $param->getType(),
                               'description'=> $description);
         }
         return array('name' => $name,
                      'description' => $methodDescription,
                      'inputs' => $result,
-                     'output' => array('type'=>''. $f->getReturnType()->__toString(),
+                     'output' => array('type'=>''. $f->getReturnType(),
                                        'description'=>$outputDescription));
     }
 

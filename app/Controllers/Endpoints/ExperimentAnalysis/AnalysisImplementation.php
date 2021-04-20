@@ -161,11 +161,14 @@ class Implementation {
         $time = min($times);
         $maxTime = max($times);
         $step = ($maxTime - $time) / 100;
+        $linearValues = [];
         while($time <= $maxTime){
             $linearRegressionTimeSeries[] = array('time' => $time, 'value' => $b0 + ($b1 * $time));
+            $linearValues[] = $b0 + ($b1 * $time);
             $time += $step;
         }
-        return $linearRegressionTimeSeries;
+        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $linearValues], ["Time series", "Linear regression"]);
+        //return $linearRegressionTimeSeries;
     }
 
     /**

@@ -7,7 +7,11 @@ abstract class AbstractController
 {
 	protected static function formatOk(Response $response, array $data = null): Response
 	{
-		return $response->withHeader('Content-type', 'application/json')->withStatus(200)->withJson([
+		return $response->withHeader('Content-type', 'application/json')
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', 'DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD')
+            ->withStatus(200)->withJson([
 			'status' => 'ok',
 			'code' => 200,
 			'data' => $data,
