@@ -29,8 +29,6 @@ class AnalysisManager extends AbstractController
      */
     public static function responseRunAnalysis(Response $response, Request $request, string $name): \Slim\Http\Response
     {
-        print_r($response);
-        exit;
         return self::formatOk($response, self::runAnalysis($request, $name));
     }
 
