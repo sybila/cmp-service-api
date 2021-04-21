@@ -84,7 +84,7 @@ class AnalysisManager extends AbstractController
         $f = self::getAnalysisMethod($methodName);
         $inputs = self::prepareInputs($request, $methodName);
         $result = $f->invokeArgs((object)Implementation::class, $inputs);
-        return ['result' => $result];
+        return ['outputType' => ''. $f->getReturnType(), 'result' => $result];
     }
 
     /**
