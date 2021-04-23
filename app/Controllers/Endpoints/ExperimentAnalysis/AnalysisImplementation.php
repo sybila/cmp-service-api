@@ -190,11 +190,12 @@ class Implementation {
         $x_max = max($xValues);
         $step = $x_max / 100;
         $x = 0;
-        while ($x < $x_max){
-            $linearRegression[] = array('x' => $x, 'y' => $b0 + ($b1 * $x));
-            $x += $step;
+        foreach($xValues as $x){
+            $linearRegression[] = $b0 + ($b1 * $x);
         }
-        return $linearRegression;
+        $legend = array(array("name"=> "X", "color"=> "6364d3"), array("name"=> "Y", "color"=> "f07058"));
+        return AnalysisLib::visualizeData("Linear regression", [$xValues, $yValues, $linearRegression], $legend);
+        //return $linearRegression;
     }
 
     /**
@@ -241,7 +242,13 @@ class Implementation {
             $exponentialRegressionTimeSeries[] = array('time' => $time, 'value' => $value);
             $time += $step;
         }
-        return $exponentialRegressionTimeSeries;
+        $exponentialValues = [];
+        foreach($times as $time){
+            $exponentialValues[] = $a * exp($r * $time);;
+        }
+        $legend = array(array("name"=> "X", "color"=> "6364d3"), array("name"=> "Y", "color"=> "f07058"));
+        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $exponentialValues], $legend);
+        //return $exponentialRegressionTimeSeries;
     }
 
     /**
