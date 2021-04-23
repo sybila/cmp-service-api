@@ -162,12 +162,11 @@ class Implementation {
         $maxTime = max($times);
         $step = ($maxTime - $time) / 100;
         $linearValues = [];
-        while($time <= $maxTime){
+        foreach($times as $time){
             $linearRegressionTimeSeries[] = array('time' => $time, 'value' => $b0 + ($b1 * $time));
             $linearValues[] = $b0 + ($b1 * $time);
-            $time += $step;
         }
-        $legend = array(array("name"=> "Time series", "color"=> "6364d3"), array("name"=> "Linear regression", "color"=> "4e732c"));
+        $legend = array(array("name"=> "Time series", "color"=> "6364d3"), array("name"=> "Linear regression", "color"=> "f07058"));
         return AnalysisLib::visualizeData("Linear regression", [$times, $values, $linearValues], $legend);
         //return $linearRegressionTimeSeries;
     }
