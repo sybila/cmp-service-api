@@ -167,7 +167,8 @@ class Implementation {
             $linearValues[] = $b0 + ($b1 * $time);
             $time += $step;
         }
-        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $linearValues], ["Time series", "Linear regression"]);
+        $legend = array(array("name"=> "Time series", "color"=> "6364d3"), array("name"=> "Linear regression", "color"=> "4e732c"));
+        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $linearValues], $legend);
         //return $linearRegressionTimeSeries;
     }
 
