@@ -195,10 +195,10 @@ class AnalysisLib{
     public static function visualizeData(string $analysisName, array $data, array $legend){
         $graphsets = [];
         array_push($graphsets, ["name" => "All",
-            "datasets" => array_fill(0, count($data) -1, True)]);
+            "datasets" => array_fill(0, count($data), True)]);
         return [
             'model' => false,
-            'id' => 0,
+            'id' => "0",
             'name' => $analysisName,
             "xAxisName"=>"Time",
             "yAxisName"=>"Species [molecules/cell]",
