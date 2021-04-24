@@ -12,71 +12,71 @@ class Implementation {
     /**
      * Average of one variable.
      * @param string $accessToken
-     * @param ExperimentId $experimentId Experiment identifier
-     * @param VariableId $variableId Variable identifier
+     * @param ExperimentId $experiment Experiment identifier
+     * @param VariableId $variable Variable identifier
      * @return float Return decimal number mean of variable data.
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableMean(string $accessToken, ExperimentId $experimentId, VariableId $variableId): float
+    static function variableMean(string $accessToken, ExperimentId $experiment, VariableId $variable): float
     {
-        $values = AnalysisLib::getVariableValues($accessToken, $experimentId, $variableId);
+        $values = AnalysisLib::getVariableValues($accessToken, $experiment, $variable);
         return AnalysisLib::mean($values);
     }
 
     /**
      * Maximum of one variable.
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableMaximum(string $accessToken, ExperimentId $experimentId, VariableId $variableId): float
+    static function variableMaximum(string $accessToken, ExperimentId $experiment, VariableId $variable): float
     {
-        $values = AnalysisLib::getVariableValues($accessToken, $experimentId, $variableId);
+        $values = AnalysisLib::getVariableValues($accessToken, $experiment, $variable);
         return number_format(max($values), 3, '.', '');
     }
 
     /**
      * Minimum of one variable.
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableMinimum(string $accessToken, ExperimentId $experimentId, VariableId $variableId): float
+    static function variableMinimum(string $accessToken, ExperimentId $experiment, VariableId $variable): float
     {
-        $values = AnalysisLib::getVariableValues($accessToken, $experimentId, $variableId);
+        $values = AnalysisLib::getVariableValues($accessToken, $experiment, $variable);
         return number_format(min($values), 3, '.', '');
     }
 
     /**
      * Median of one variable.
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableMedian(string $accessToken, ExperimentId $experimentId, VariableId $variableId): float
+    static function variableMedian(string $accessToken, ExperimentId $experiment, VariableId $variable): float
     {
-        $values = AnalysisLib::getVariableValues($accessToken, $experimentId, $variableId);
+        $values = AnalysisLib::getVariableValues($accessToken, $experiment, $variable);
         $sorted_values = sort($values);
         return $sorted_values[round(count($values) / 2)];
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @param bool $isWholePopulation
      * @return float|int
      * @throws AccessForbiddenException
      * @throws OperationFailedException
      */
-    static function variableVariance(string $accessToken, ExperimentId $experimentId, VariableId $variableId, bool $isWholePopulation){
-        $values = AnalysisLib::getVariableValues($accessToken, $experimentId, $variableId);
+    static function variableVariance(string $accessToken, ExperimentId $experiment, VariableId $variable, bool $isWholePopulation){
+        $values = AnalysisLib::getVariableValues($accessToken, $experiment, $variable);
         $count = count($values);
         $mean = AnalysisLib::mean($values);
         $sum = 0;
@@ -91,31 +91,31 @@ class Implementation {
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @param bool $isWholePopulation
      * @return float
      * @throws AccessForbiddenException
      * @throws OperationFailedException
      */
-    static function variableStandardDeviation(string $accessToken, ExperimentId $experimentId, VariableId $variableId, bool $isWholePopulation): float
+    static function variableStandardDeviation(string $accessToken, ExperimentId $experiment, VariableId $variable, bool $isWholePopulation): float
     {
-        $variance = self::variableVariance($accessToken, $experimentId, $variableId, $isWholePopulation);
+        $variance = self::variableVariance($accessToken, $experiment, $variable, $isWholePopulation);
         return sqrt($variance);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId1
-     * @param VariableId $variableId1
-     * @param ExperimentId $experimentId2
-     * @param VariableId $variableId2
+     * @param ExperimentId $experiment1
+     * @param VariableId $variable1
+     * @param ExperimentId $experiment2
+     * @param VariableId $variable2
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function twoVariablesMean(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
+    static function twoVariablesMean(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2): array
     {
-        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
+        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $mean = array();
         $times = array_keys($timeSeries1);
         $values1 = array_values($timeSeries1);
@@ -134,21 +134,21 @@ class Implementation {
             $values2,
             $mean,
         );
-        return AnalysisLib::visualizeResult($experimentId1, "Two Variables Mean", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment1, "Two Variables Mean", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId1
-     * @param VariableId $variableId1
-     * @param ExperimentId $experimentId2
-     * @param VariableId $variableId2
+     * @param ExperimentId $experiment1
+     * @param VariableId $variable1
+     * @param ExperimentId $experiment2
+     * @param VariableId $variable2
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function twoVariablesDifference(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
+    static function twoVariablesDifference(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2): array
     {
-        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
+        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $times = array_keys($timeSeries1);
         $values1 = array_values($timeSeries1);
         $values2 = array_values($timeSeries2);
@@ -167,19 +167,19 @@ class Implementation {
             $values2,
             $difference,
         );
-        return AnalysisLib::visualizeResult($experimentId1, "Two Variables Difference", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment1, "Two Variables Difference", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableLinearRegression(string $accessToken, ExperimentId $experimentId, VariableId $variableId): array
+    static function variableLinearRegression(string $accessToken, ExperimentId $experiment, VariableId $variable): array
     {
-        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experimentId, $variableId);
+        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($b0, $b1) = AnalysisLib::leastSquareMethod($times, $values);
@@ -191,21 +191,21 @@ class Implementation {
                     array("name"=> "Time series", "color"=> "6364d3"),
                     array("name"=> "Linear regression", "color"=> "f07058"));
         $data = array($times, $values, $linearValues);
-        return AnalysisLib::visualizeResult($experimentId, "Linear regression", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment, "Linear regression", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId1
-     * @param VariableId $variableId1
-     * @param ExperimentId $experimentId2
-     * @param VariableId $variableId2
+     * @param ExperimentId $experiment1
+     * @param VariableId $variable1
+     * @param ExperimentId $experiment2
+     * @param VariableId $variable2
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function twoVariablesLinearRegression(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
+    static function twoVariablesLinearRegression(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2): array
     {
-        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
+        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $xValues = array_values($timeSeries1);
         $yValues = array_values($timeSeries2);
         list($b0, $b1) = AnalysisLib::leastSquareMethod($xValues, $yValues);
@@ -219,19 +219,19 @@ class Implementation {
         $data = array(
             $xValues, $yValues, $linearRegression
         );
-        return AnalysisLib::visualizeResult($experimentId1,"Linear regression", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment1,"Linear regression", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return string
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableCourse(string $accessToken, ExperimentId $experimentId, VariableId $variableId): string
+    static function variableCourse(string $accessToken, ExperimentId $experiment, VariableId $variable): string
     {
-        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experimentId, $variableId);
+        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($b0, $b1) = AnalysisLib::leastSquareMethod($times, $values);
@@ -246,14 +246,14 @@ class Implementation {
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableExponentialRegression(string $accessToken, ExperimentId $experimentId, VariableId $variableId): array
+    static function variableExponentialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable): array
     {
-        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experimentId, $variableId);
+        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($times, $values);
@@ -275,21 +275,21 @@ class Implementation {
         $data = array(
             $times, $values, $exponentialValues
         );
-        return AnalysisLib::visualizeResult($experimentId, "Exponential regression", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment, "Exponential regression", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId1
-     * @param VariableId $variableId1
-     * @param ExperimentId $experimentId2
-     * @param VariableId $variableId2
+     * @param ExperimentId $experiment1
+     * @param VariableId $variable1
+     * @param ExperimentId $experiment2
+     * @param VariableId $variable2
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function twoVariablesExponentialRegression(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
+    static function twoVariablesExponentialRegression(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2): array
     {
-        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
+        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $xValues = array_values($timeSeries1);
         $yValues = array_values($timeSeries2);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($xValues, $yValues);
@@ -312,13 +312,13 @@ class Implementation {
         $data = array(
             $xValues, $yValues, $exponentialValues
         );
-        return AnalysisLib::visualizeResult($experimentId1, "Exponential regression", $data, $legend);
+        return AnalysisLib::visualizeResult($experiment1, "Exponential regression", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId
-     * @param VariableId $variableId
+     * @param ExperimentId $experiment
+     * @param VariableId $variable
      * @param int|null $lag
      * @param float|null $influence
      * @param float|null $threshold
@@ -326,7 +326,7 @@ class Implementation {
      * @throws AccessForbiddenException
      * @throws OperationFailedException
      */
-    static function variableFindPeaks(string $accessToken, ExperimentId $experimentId, VariableId $variableId, ?int $lag, ?float $influence, ?float $threshold): array
+    static function variableFindPeaks(string $accessToken, ExperimentId $experiment, VariableId $variable, ?int $lag, ?float $influence, ?float $threshold): array
     {
         // set default values
         if($lag == null){
@@ -344,7 +344,7 @@ class Implementation {
             'influence' => $influence,
         ]);
         // get variable values
-        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experimentId, $variableId);
+        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $values = array_values($timeSeries);
         // find peaks
         $highlightedPeaks = $zScore->calculate($values);
@@ -352,24 +352,32 @@ class Implementation {
         $times = array_keys($timeSeries);
         for($i = 0; $i < count($values); $i++){
             if($highlightedPeaks[$i] == 1 or $highlightedPeaks[$i] == -1){
-                $peaks[] = array('time' => $times[$i], 'values' => $values[$i]);
+                $peaks[] = $values[$i];
+            } else {
+                $peaks[] = null;
             }
         }
-        return $peaks;
+        $legend = array(
+            array("name"=> "Variable", "color"=> "6364d3"),
+            array("name"=> "Peaks", "color"=> "f07058"));
+        $data = array(
+            $times, $values, $peaks
+        );
+        return AnalysisLib::visualizeResult($experiment, "Peaks", $data, $legend);
     }
 
     /**
      * @param string $accessToken
-     * @param ExperimentId $experimentId1
-     * @param VariableId $variableId1
-     * @param ExperimentId $experimentId2
-     * @param VariableId $variableId2
+     * @param ExperimentId $experiment1
+     * @param VariableId $variable1
+     * @param ExperimentId $experiment2
+     * @param VariableId $variable2
      * @return float|int
      * @throws AccessForbiddenException
      * @throws OperationFailedException
      */
-    static function twoVariablesCorrelation(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2){
-        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
+    static function twoVariablesCorrelation(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2){
+        list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $values1 = array_values($timeSeries1);
         $values2 = array_values($timeSeries2);
         $length= count($values1);
@@ -393,8 +401,8 @@ class Implementation {
         return $corr;
     }
 
-    static function polynomialRegression(string $accessToken, ExperimentId $experimentId, VariableId $variableId, int $maximumDegree){
-        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experimentId, $variableId);
+    static function polynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree){
+        $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_keys($timeSeries);
         /*$times = [0, 0.25, 0.5, 0.75, 1];
