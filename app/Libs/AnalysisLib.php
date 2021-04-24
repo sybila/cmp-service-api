@@ -192,13 +192,14 @@ class AnalysisLib{
         return $coefficients;
     }
 
-    public static function visualizeData(string $analysisName, array $data, array $legend){
+    public static function visualizeResult(ExperimentId $expId, string $analysisName, array $data, array $legend): array
+    {
         $graphsets = [];
         array_push($graphsets, ["name" => "All",
             "datasets" => array_fill(0, count($data), True)]);
         return [
             'model' => false,
-            'id' => "0",
+            'id' => strval($expId),
             'name' => $analysisName,
             "xAxisName"=>"Time",
             "yAxisName"=>"Species [molecules/cell]",

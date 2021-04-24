@@ -116,12 +116,25 @@ class Implementation {
     static function twoVariablesMean(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
     {
         list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
-        $meanTimeSeries = array();
-        foreach (array_keys($timeSeries1) as $time){
+        $mean = array();
+        $times = array_keys($timeSeries1);
+        $values1 = array_values($timeSeries1);
+        $values2 = array_values($timeSeries2);
+        foreach ($times as $time){
             $value = ($timeSeries1[$time] + $timeSeries2[$time]) / 2;
-            $meanTimeSeries[] = array('time' => floatval($time), 'value' => $value);
+            $mean[] = $value;
         }
-        return $meanTimeSeries;
+        $legend = array(
+            array("name"=> "Variable 1", "color"=> "6364d3"),
+            array("name"=> "Variable 2", "color"=> "9163d3"),
+            array("name"=> "Mean", "color"=> "f07058"));
+        $data = array(
+            $times,
+            $values1,
+            $values2,
+            $mean,
+        );
+        return AnalysisLib::visualizeResult($experimentId1, "Two Variables Mean", $data, $legend);
     }
 
     /**
@@ -136,12 +149,25 @@ class Implementation {
     static function twoVariablesDifference(string $accessToken, ExperimentId $experimentId1, VariableId $variableId1, ExperimentId $experimentId2, VariableId $variableId2): array
     {
         list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experimentId1, $variableId1, $experimentId2, $variableId2);
-        $meanTimeSeries = array();
+        $times = array_keys($timeSeries1);
+        $values1 = array_values($timeSeries1);
+        $values2 = array_values($timeSeries2);
+        $difference = array();
         foreach (array_keys($timeSeries1) as $time){
             $value = $timeSeries1[$time] - $timeSeries2[$time];
-            $meanTimeSeries[] = array('time' => floatval($time), 'value' => $value);
+            $difference[] = $value;
         }
-        return $meanTimeSeries;
+        $legend = array(
+            array("name"=> "Variable 1", "color"=> "6364d3"),
+            array("name"=> "Variable 2", "color"=> "9163d3"),
+            array("name"=> "Difference", "color"=> "f07058"));
+        $data = array(
+            $times,
+            $values1,
+            $values2,
+            $difference,
+        );
+        return AnalysisLib::visualizeResult($experimentId1, "Two Variables Difference", $data, $legend);
     }
 
     /**
@@ -157,18 +183,15 @@ class Implementation {
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($b0, $b1) = AnalysisLib::leastSquareMethod($times, $values);
-        $linearRegressionTimeSeries = array();
-        $time = min($times);
-        $maxTime = max($times);
-        $step = ($maxTime - $time) / 100;
         $linearValues = [];
         foreach($times as $time){
-            $linearRegressionTimeSeries[] = array('time' => $time, 'value' => $b0 + ($b1 * $time));
             $linearValues[] = $b0 + ($b1 * $time);
         }
-        $legend = array(array("name"=> "Time series", "color"=> "6364d3"), array("name"=> "Linear regression", "color"=> "f07058"));
-        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $linearValues], $legend);
-        //return $linearRegressionTimeSeries;
+        $legend = array(
+                    array("name"=> "Time series", "color"=> "6364d3"),
+                    array("name"=> "Linear regression", "color"=> "f07058"));
+        $data = array($times, $values, $linearValues);
+        return AnalysisLib::visualizeResult($experimentId, "Linear regression", $data, $legend);
     }
 
     /**
@@ -187,15 +210,16 @@ class Implementation {
         $yValues = array_values($timeSeries2);
         list($b0, $b1) = AnalysisLib::leastSquareMethod($xValues, $yValues);
         $linearRegression = array();
-        $x_max = max($xValues);
-        $step = $x_max / 100;
-        $x = 0;
         foreach($xValues as $x){
             $linearRegression[] = $b0 + ($b1 * $x);
         }
-        $legend = array(array("name"=> "X", "color"=> "6364d3"), array("name"=> "Y", "color"=> "f07058"));
-        return AnalysisLib::visualizeData("Linear regression", [$xValues, $yValues, $linearRegression], $legend);
-        //return $linearRegression;
+        $legend = array(
+                    array("name"=> "Variable 1", "color"=> "6364d3"),
+                    array("name"=> "Variable 2", "color"=> "f07058"));
+        $data = array(
+            $xValues, $yValues, $linearRegression
+        );
+        return AnalysisLib::visualizeResult($experimentId1,"Linear regression", $data, $legend);
     }
 
     /**
@@ -233,22 +257,25 @@ class Implementation {
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($times, $values);
-        $exponentialRegressionTimeSeries = array();
-        $time = min($times);
+        /*$time = min($times);
         $maxTime = max($times);
         $step = ($maxTime - $time) / 100;
         while($time <= $maxTime){
             $value = $a * exp($r * $time);
             $exponentialRegressionTimeSeries[] = array('time' => $time, 'value' => $value);
             $time += $step;
-        }
+        }*/
         $exponentialValues = [];
         foreach($times as $time){
             $exponentialValues[] = $a * exp($r * $time);;
         }
-        $legend = array(array("name"=> "X", "color"=> "6364d3"), array("name"=> "Y", "color"=> "f07058"));
-        return AnalysisLib::visualizeData("Linear regression", [$times, $values, $exponentialValues], $legend);
-        //return $exponentialRegressionTimeSeries;
+        $legend = array(
+                    array("name"=> "Time series", "color"=> "6364d3"),
+                    array("name"=> "Exponential Regression", "color"=> "f07058"));
+        $data = array(
+            $times, $values, $exponentialValues
+        );
+        return AnalysisLib::visualizeResult($experimentId, "Exponential regression", $data, $legend);
     }
 
     /**
@@ -266,7 +293,7 @@ class Implementation {
         $xValues = array_values($timeSeries1);
         $yValues = array_values($timeSeries2);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($xValues, $yValues);
-        $exponentialRegression = array();
+        /*$exponentialRegression = array();
         $xMax = max($xValues);
         $step = $xMax / 100;
         $x = 0;
@@ -274,8 +301,18 @@ class Implementation {
             $y = $a * exp($r * $x);
             $exponentialRegression[] = array('x' => $x, 'y' => $y);
             $x += $step;
+        }*/
+        $exponentialValues = [];
+        foreach($xValues as $time){
+            $exponentialValues[] = $a * exp($r * $time);;
         }
-        return $exponentialRegression;
+        $legend = array(
+            array("name"=> "Variable 1", "color"=> "6364d3"),
+            array("name"=> "Variable 2", "color"=> "f07058"));
+        $data = array(
+            $xValues, $yValues, $exponentialValues
+        );
+        return AnalysisLib::visualizeResult($experimentId1, "Exponential regression", $data, $legend);
     }
 
     /**
