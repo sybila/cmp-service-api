@@ -165,7 +165,11 @@ class AnalysisLib{
         // transform to least square method
         $ln_y = array();
         foreach($y as $y_value){
-            $ln_y[] = log($y_value);
+            if($y_value != 0) {
+                $ln_y[] = log($y_value);
+            } else {
+                $ln_y[] = 0;
+            }
         }
         list($b0, $b1) = self::leastSquareMethod($x, $ln_y);
         // transform back
@@ -209,49 +213,7 @@ class AnalysisLib{
             ]],
             "legend"=> $legend,
             "graphsets" => $graphsets,
-            "legendItems"=>null,
+            "legendItems" => null,
             "datasetsVisibility"=>null];
-    }
-
-    public static function fitSine(array $yList, float $freq){
-        $b = array_map(null, ...$yList);
-        $rows = array();
-        foreach ($yList as $y){
-            $rows[] = [sin($freq * 2 * pi() * $y), cos($freq * 2 * pi() * $y)];
-        }
-        $regression = new LeastSquares();
-        $regression->train($rows, $b);
-        list($w,$residuals,$rank,$singVals) = $regression->getCoefficients();
-        /*$phase = atan2($w[1][0],$w[0][0])*180/pi();
-        $amplitude = norm([$w[0][0],$w[1][0]],2);
-        $bias = w[2][0];*/
-        for($i=0;$i<1;$i+=0.01){
-            echo "time: " . $i . ", value: ". $regression->predict($i);
-        }
-        exit();
-    }
-
-    public static function runRScript(string $RScriptPath, array $inputs){
-        //echo "run R script\n";
-        $r = new RCore(new CommandLineREngine('/usr/bin/R'));
-        $rProcess = $r->createInteractiveProcess();
-        $rProcess->start();
-        /*foreach ($inputs as $key => $values){
-            //$rProcess->write($key . ' <- c()');
-            echo "\$rProcess->write(\"". $key . ' <- c()' . "\");\n";
-            foreach ($values as $value) {
-                //$rProcess->write($key . ' <- append(' . $key . "," . $value . ")");
-                echo "\$rProcess->write(\"". $key . ' <- append(' . $key . "," . $value . ")\");\n";
-            }
-        }
-        echo "model <- lm(value ~ poly(time, 27))\n";
-        echo "print(summary(lm))"; exit;*/
-        //$rProcess->write("model <- lm(values ~ poly(times, 27))");
-        //$rProcess->write("print(summary(lm))");
-        echo $rProcess->getAllResult(); exit();
-        $result = $r->run($commands);
-        echo $result;
-        exit;
-        return $result;
     }
 }
