@@ -376,7 +376,7 @@ class Implementation {
      * @throws AccessForbiddenException
      * @throws OperationFailedException
      */
-    static function twoVariablesCorrelation(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2){
+    static function twoVariablesCorrelation(string $accessToken, ExperimentId $experiment1, VariableId $variable1, ExperimentId $experiment2, VariableId $variable2): float{
         list($timeSeries1, $timeSeries2) = AnalysisLib::alignTwoVariables($accessToken, $experiment1, $variable1, $experiment2, $variable2);
         $values1 = array_values($timeSeries1);
         $values2 = array_values($timeSeries2);
@@ -401,7 +401,7 @@ class Implementation {
         return $corr;
     }
 
-    static function polynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree){
+    static function polynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree): array {
         $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_keys($timeSeries);
@@ -432,7 +432,21 @@ class Implementation {
             }
             $targets[$i] = $y;
         }
-        //AnalysisLib::cramersRule($matrix, $targets)); exit;
-        return AnalysisLib::cramersRule($matrix, $targets);
+        $polynomialRegression = array();
+        $coefficients = AnalysisLib::cramersRule($matrix, $targets);
+        foreach($times as $time){
+            $value = 0;
+            for($i = 0; $i < $maximumDegree; $i++){
+                $value += pow($time, $i) * $coefficients[$i];
+            }
+            $polynomialRegression[] = $value;
+        }
+        $legend = array(
+            array("name"=> "Variable", "color"=> "6364d3"),
+            array("name"=> "Polynomial Regression", "color"=> "f07058"));
+        $data = array(
+            $times, $values, $polynomialRegression
+        );
+        return AnalysisLib::visualizeResult($experiment, "Polynomial Regression", $data, $legend);
     }
 }
