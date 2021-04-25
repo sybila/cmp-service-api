@@ -404,7 +404,7 @@ class Implementation {
     static function polynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree): array {
         $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
-        $values = array_keys($timeSeries);
+        $values = array_values($timeSeries);
         /*$times = [0, 0.25, 0.5, 0.75, 1];
         $timeSeries = array();
         $timeSeries["0.0"] = 1;
