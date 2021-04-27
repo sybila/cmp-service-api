@@ -118,8 +118,7 @@ class ImportSBML extends AbstractController
                 unset($content[$key]);
             }
             if ($key === 'initialAmount' || $key === 'initialConcentration') {
-                $content['initialValue'] = $value;
-                unset($content[$key]);
+                $content['initialAmount'] = $value;
             }
         }
     }
