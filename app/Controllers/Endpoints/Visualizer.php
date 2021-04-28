@@ -13,11 +13,12 @@ class Visualizer extends AbstractController
 {
     public static function getChart(Request $request, Response $response, $id, $model){
         $object = null;
-        if(!$model){
-            $object = new ExperimentChartData($request, $id);
-        } else{
-            return self::formatOk($response, ["Models not implemented."]);
-        }
+//        if(!$model){
+//            $object = new ExperimentChartData($request, $id);
+//        } else{
+//            return self::formatOk($response, ["Models not implemented."]);
+//        }
+        $object = new ExperimentChartData($request, $id);
         return self::formatOk($response, $object->getContentChart());
     }
 

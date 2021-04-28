@@ -139,4 +139,23 @@ return function(App $app) {
      */
     $app->post('/models/import/sbml', ImportSBML::class . ':parseSBMLtoJson');
 
+    $app->get('/models/copasi/analysis', function (Request $request, Response $response, $args){
+        return \Controllers\Endpoints\CopasiManager::responseListofAnalysis($response);
+    });
+
+    $app->get('/models/copasi/analysisPrescription/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\CopasiManager::responsePrescription($response, $name);
+    });
+
+    $app->get('/models/copasi/analysisAnnotation/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\CopasiManager::responseAnnotation($response, $name);
+    });
+
+    $app->post('/models/copasi/runAnalysis/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        return \Controllers\Endpoints\CopasiManager::responseRunAnalysis($response, $request, $name);
+    });
+
 };
