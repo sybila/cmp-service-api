@@ -5,6 +5,7 @@ namespace Controllers\Endpoints;
 
 
 use Controllers\Abstracts\AbstractController;
+use ModelChartData;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -16,6 +17,8 @@ class Visualizer extends AbstractController
         if(!$model){
             $object = new ExperimentChartData($request, $id);
         } else{
+            $modelCh = new ModelChartData($request, 0);
+            $modelCh->parseCSV();
             return self::formatOk($response, ["Models not implemented."]);
         }
         return self::formatOk($response, $object->getContentChart());
