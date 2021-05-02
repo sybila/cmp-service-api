@@ -11,6 +11,8 @@ use Slim\Http\Response;
 
 class AnalysisManager extends AbstractController
 {
+    private static $analysisClass = Implementation::class;
+
     /**
      * Response list of all available analysis.
      * @param $response
@@ -48,7 +50,7 @@ class AnalysisManager extends AbstractController
      */
     private static function getListOfAnalysis(): array
     {
-        $classMethods = get_class_methods(Implementation::class);
+        $classMethods = get_class_methods(self::$analysisClass);
         $methodsNames = array();
         foreach($classMethods as $methodName){
             $methodsNames[] = self::convertMethodNameToAnalysisName($methodName);
@@ -64,7 +66,7 @@ class AnalysisManager extends AbstractController
     private static function getAnalysisMethod(string $name): ReflectionMethod
     {
         try {
-            return new ReflectionMethod(Implementation::class, $name);
+            return new ReflectionMethod(self::$analysisClass, $name);
         } catch (\ReflectionException $e) {
             throw new NonExistingAnalysisMethod($name);
         }
@@ -83,7 +85,7 @@ class AnalysisManager extends AbstractController
         $methodName = self::convertAnalysisNameToMethodName($name);
         $f = self::getAnalysisMethod($methodName);
         $inputs = self::prepareInputs($request, $methodName);
-        $result = $f->invokeArgs((object)Implementation::class, $inputs);
+        $result = $f->invokeArgs((object)self::$analysisClass, $inputs);
         return ['outputType' => ''. $f->getReturnType(), 'result' => $result];
     }
 
@@ -113,15 +115,15 @@ class AnalysisManager extends AbstractController
                 $description = $annotation['params'][$param->name]['description'];
             }
             $result[] = array('key' => $param->name,
-                              'name' => self::convertMethodNameToAnalysisName($param->name),
-                              'type' => '' . $param->getType(),
-                              'description'=> $description);
+                'name' => self::convertMethodNameToAnalysisName($param->name),
+                'type' => '' . $param->getType(),
+                'description'=> $description);
         }
         return array('name' => $name,
-                     'description' => $methodDescription,
-                     'inputs' => $result,
-                     'output' => array('type'=>''. $f->getReturnType(),
-                                       'description'=>$outputDescription));
+            'description' => $methodDescription,
+            'inputs' => $result,
+            'output' => array('type'=>''. $f->getReturnType(),
+                'description'=>$outputDescription));
     }
 
     /**
@@ -193,7 +195,7 @@ class AnalysisManager extends AbstractController
         $inputsBody =  $request->getParsedBody()['inputs'];
         $inputsPrescription = self::getPrescription($name);
         foreach ($inputsPrescription["inputs"] as $input) {
-            if($input["type"] != "int" and $input["type"] != "string" and $input["type"] != "float" and $input["type"] != "bool")
+            if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
             {
                 $typeName = $input["type"];
                 $new_input = new $typeName($inputsBody[0][$input["name"]]);
@@ -219,4 +221,22 @@ class AnalysisManager extends AbstractController
         #$lower = strtolower($split);
         return ucfirst($split);
     }
+
+    /**
+     * @return string
+     */
+    public static function getAnalysisClass(): string
+    {
+        return self::$analysisClass;
+    }
+
+    /**
+     * @param string $analysisClass
+     */
+    public static function setAnalysisClass(string $analysisClass): void
+    {
+        self::$analysisClass = $analysisClass;
+    }
+
+
 }

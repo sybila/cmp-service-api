@@ -1,5 +1,8 @@
 <?php
 
+use Controllers\Endpoints\AnalysisManager;
+use Controllers\Endpoints\CopasiImplementation;
+use Controllers\Endpoints\ImportSBML;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -7,57 +10,57 @@ use Slim\Http\Response;
 class RouteHelper
 {
 
-	const LIST = 0x01;
-	const ADD = 0x04;
-	const ALL = self::LIST | self::ADD;
+    const LIST = 0x01;
+    const ADD = 0x04;
+    const ALL = self::LIST | self::ADD;
 
-	/** @var App */
-	public static $app;
+    /** @var App */
+    public static $app;
 
-	/** @var string */
-	private $path;
+    /** @var string */
+    private $path;
 
-	/** @var string */
-	private $className;
+    /** @var string */
+    private $className;
 
-	/** @var int */
-	private $mask = self::ALL;
-
-
-	public function setRoute(string $className, string $path): RouteHelper
-	{
-		$this->className = $className;
-		$this->path = $path;
-		return $this;
-	}
+    /** @var int */
+    private $mask = self::ALL;
 
 
-	public function setMask(int $mask): RouteHelper
-	{
-		$this->mask = $mask;
-		return $this;
-	}
+    public function setRoute(string $className, string $path): RouteHelper
+    {
+        $this->className = $className;
+        $this->path = $path;
+        return $this;
+    }
 
 
-	public function register(string $idName = 'id')
-	{
-		$routes = [];
+    public function setMask(int $mask): RouteHelper
+    {
+        $this->mask = $mask;
+        return $this;
+    }
 
-		if ($this->mask & self::LIST) {
-			$routes[] = $route = self::$app->get($this->path, $this->className . ':read');
-		}
 
-		if ($this->mask & self::ADD) {
-			$routes[] = $route = self::$app->post($this->path, $this->className . ':add');
-		}
-	}
+    public function register(string $idName = 'id')
+    {
+        $routes = [];
+
+        if ($this->mask & self::LIST) {
+            $routes[] = $route = self::$app->get($this->path, $this->className . ':read');
+        }
+
+        if ($this->mask & self::ADD) {
+            $routes[] = $route = self::$app->post($this->path, $this->className . ':add');
+        }
+    }
 
 }
 
 return function(App $app) {
 
-	// version
-	$app->get('/version', Controllers\Endpoints\VersionController::class);
+    // version
+    $app->get('/version', Controllers\Endpoints\VersionController::class);
 
     /**
      * Experiments
@@ -115,7 +118,8 @@ return function(App $app) {
     });
 
     $app->get('/analysis', function (Request $request, Response $response, $args){
-        return \Controllers\Endpoints\AnalysisManager::responseListofAnalysis($response);
+
+        return AnalysisManager::responseListofAnalysis($response);
     });
 
     $app->get('/analysisPrescription/{name}', function (Request $request, Response $response, $args){
@@ -128,4 +132,33 @@ return function(App $app) {
         $name = $args['name'];
         return \Controllers\Endpoints\AnalysisManager::responseRunAnalysis($response, $request, $name);
     });
+
+    /**
+     * Models
+     */
+    $app->post('/models/import/sbml', ImportSBML::class . ':parseSBMLtoJson');
+
+    $app->get('/models/copasi/analysis', function (Request $request, Response $response, $args){
+        AnalysisManager::setAnalysisClass(CopasiImplementation::class);
+        return \Controllers\Endpoints\AnalysisManager::responseListofAnalysis($response);
+    });
+
+    $app->get('/models/copasi/analysisPrescription/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        AnalysisManager::setAnalysisClass(CopasiImplementation::class);
+        return \Controllers\Endpoints\AnalysisManager::responsePrescription($response, $name);
+    });
+
+    $app->get('/models/copasi/analysisAnnotation/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        AnalysisManager::setAnalysisClass(CopasiImplementation::class);
+        return \Controllers\Endpoints\AnalysisManager::responseAnnotation($response, $name);
+    });
+
+    $app->post('/models/copasi/runAnalysis/{name}', function (Request $request, Response $response, $args){
+        $name = $args['name'];
+        AnalysisManager::setAnalysisClass(CopasiImplementation::class);
+        return \Controllers\Endpoints\AnalysisManager::responseRunAnalysis($response, $request, $name);
+    });
+
 };
