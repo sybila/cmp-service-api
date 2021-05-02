@@ -16,10 +16,9 @@ class Visualizer extends AbstractController
         $object = null;
         if(!$model){
             $object = new ExperimentChartData($request, $id);
-        } else{
+        } else {
             $modelCh = new ModelChartData($request, 0);
-            $modelCh->parseCSV();
-            return self::formatOk($response, ["Models not implemented."]);
+            return self::formatOk($response, $modelCh->getContentChart());
         }
         return self::formatOk($response, $object->getContentChart());
     }

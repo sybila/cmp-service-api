@@ -333,5 +333,28 @@ class NonExistentVariableException extends ApiException
             ->setMessage("Variable doesn't exist. Variable name: %s", $msg);
     }
 }
+class BadFileFormat extends ApiException
+{
+    const CODE = 422;
+
+    public function __construct(string $requestedFormat, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage("File in a bad format. Supported format: %s", $requestedFormat);
+    }
+}
+class DataAPIException extends ApiException
+{
+
+    /**
+     * DataAPIException constructor.
+     */
+    public function __construct(string $inheritedError, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage("%s", $inheritedError);
+    }
+
+}
 
 

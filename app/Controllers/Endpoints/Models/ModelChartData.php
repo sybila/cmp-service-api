@@ -1,74 +1,47 @@
 <?php
 
 
+use App\Exceptions\AccessForbiddenException;
 use Libs\DataApi;
 use Slim\Http\Request;
 
 class ModelChartData
 {
-    private $path;
+    /** @var string
+     * Model charts come from csv.
+     */
+    private $csvPath;
+
+    private $modelId;
+    private $modelName;
     private $legend = [];
-    private $xMin;
-    private $xMax = 0;
-    private $step = 0;
-    private $lines = [];
     private $variablesList = [];
     private $accessToken = "";
     private $graphsets;
 
-    public function __construct(Request $request, $expId){
+    public function __construct($accessToken, $csvPath, $modelId){
         $this->xMin = PHP_FLOAT_MAX;
-        $this->expId = $expId;
+        $this->csvPath = $csvPath;
+        $this->modelId = $modelId;
         // check user can access experiment
-        //$this->accessToken = self::checkAccess($request, $expId);
+        $this->modelName = $this->checkModel($accessToken, $modelId);
     }
 
-    //Get list of all variables
-    private function getModelVariables(){
-        $vars = DataApi::get("experiments/". $this->expId. "/variables", $this->accessToken);
-        if($vars['status'] == 'ok'){
-            $this->variablesList = $vars['data'];
+    private function checkModel($accessToken, $modelId)
+    {
+        $access = DataApi::get("models/". $modelId, $accessToken);
+        if($access['status'] != 'ok'){
+            throw new AccessForbiddenException("Not authorized.");
+        } else {
+            $this->graphsets = $access['data']['graphsets'];
+            return $access['data']['name'];
         }
     }
 
-    private function addLines(){
-        foreach ($this->variablesList as $var){
-            $vals = DataApi::get("experiments/". $this->expId. "/variables/" . $var['id'] . "/values?sort[time]=asc" , $this->accessToken);
-            $vals = $vals['data'];
-            if(!empty($vals)) {
-                if ($this->xMin > current($vals)['time']) {
-                    $this->xMin = current($vals)['time'];
-                }
-                if ($this->xMax < end($vals)['time']) {
-                    $this->xMax = end($vals)['time'];
-                }
-                $this->lines[] = $vals;
-            }
-        }
-        $this->step = (($this->xMax - $this->xMin) / 100.0);
-    }
 
-    private function dataInterpolation(){
-        $interpolatedLines = [];
-        $times = [];
-        $first = false;
-        foreach($this->lines as $line){
-            $step = $this->xMin;
-            $interpolatedLine = [];
-            while($step <= $this->xMax){
-                $first ?: $times[] = $step;
-                $interpolatedLine[] = $this->binarySearchTime($line, $step);
-                $step += $this->step;
-            }
-            $first ?: $interpolatedLines[] = $times;
-            $first = true;
-            $interpolatedLines[] = $interpolatedLine;
-        }
-        return $interpolatedLines;
-    }
-
-    private function getExperimentName(){
-        $exp = DataApi::get("experiments/". $this->expId, $this->accessToken);
+    private function getModelName()
+    {
+        $exp = DataApi::get("models/". $this->modelId, $this->accessToken);
         if($exp['status'] == 'ok'){
             $this->graphsets = $exp['data']['graphsets'];
             return $exp['data']['name'];
@@ -82,7 +55,7 @@ class ModelChartData
     private function createLegend(){
         $color = 0;
         foreach($this->variablesList as $var){
-            $this->legend[] = ['name'=>$var['name'], 'color'=> $this->random_color($color)];
+            $this->legend[] = ['name'=> $var, 'color'=> $this->random_color($color)];
             $color+=2;
         }
     }
@@ -112,28 +85,19 @@ class ModelChartData
         return $graphsets;
     }
 
-    public function getContentChart(){
-        $this->parseCSV();
-        $this->getModelVariables();
-        $this->addLines();
-        $this->createLegend();
-        $data = $this->dataInterpolation();
-        $name = $this->getModelName();
+    public function getContentChart($datasetName){
+        $data = $this->parseCSV();
         return [
-            'model' => false,
-            'id' => $this->expId,
-            'name' => $name,
+            'model' => true,
+            'id' => $this->modelId,
+            'name' => $this->modelName,
             "xAxisName"=>"Time",
             "yAxisName"=>"Species [molecules/cell]",
             "datasets"=>[[
-                "name" => $name,
-                "data"=>$data
+                "name" => $datasetName,
+                "data"=> $data
             ]],
             "legend"=> $this->legend,
-//            "graphsets"=>[
-//                ["name"=>"All",
-//                    "datasets"=>array_fill(0, count($this->variablesList), True)]
-//            ],
             "graphsets" => $this->createGraphsets(),
             "legendItems"=>null,
             "datasetsVisibility"=>null];
@@ -141,7 +105,35 @@ class ModelChartData
 
     public function parseCSV()
     {
-        $this->path = getcwd() . '/../file_system/experiments/exp_1/raw_data.csv';
-        fgetcsv($this->path,1000,',');
+        $legendLoaded = false;
+        $completeData = [];
+        $countVars = 0;
+        if (($handle = fopen($this->csvPath, "r")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, "\t")) !== FALSE) {
+                if (!$legendLoaded) {
+                    $legendLoaded = true;
+                    $this->variablesList = $data;
+                    foreach ($this->variablesList as $key => $var)
+                    {
+                        if ($var !== "") {
+                            array_push($completeData, []);
+                        } else {
+                            unset($this->variablesList[$key]);
+                        }
+                    }
+                    $this->createLegend();
+                    $countVars = count($this->variablesList);
+                } else {
+                    for ($pos=0; $pos < $countVars; $pos++) {
+                        if (key_exists($pos, $data)) {
+                            array_push($completeData[$pos], $data[$pos]);
+                        }
+                    }
+                }
+            }
+            fclose($handle);
+        }
+        return $completeData;
     }
+
 }
