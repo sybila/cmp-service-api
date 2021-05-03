@@ -7,3 +7,5 @@ settings.local.php
 /config/*.priv
 /config/*.pub
 .htaccess
+/file_system/models/*
+!/file_system/models/.gitkeep
