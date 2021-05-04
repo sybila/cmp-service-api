@@ -9,6 +9,7 @@ use DOMXPath;
 use Libs\DataApi;
 use ModelChartData;
 use ReflectionMethod;
+use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -286,6 +287,9 @@ class Copasi
 
     public function getZeroDeficiency($matrix)
     {
+        $config = require getcwd() . '/../app/settings.local.php';
+        $c = new Container($config);
+        $python = $c['settings']['python'];
         $size = count($matrix);
         unset($matrix[$size-1]);
         unset($matrix[0]);
@@ -305,7 +309,7 @@ class Copasi
             $stringMx .= $rowCount == $mxSize ? ']]' : '],';
         }
         $bin = '../external_analysis_tools/ZeroDeficiency.py';
-        $command = "python3.6 {$bin} -m $stringMx";
+        $command = "$python {$bin} -m $stringMx";
         exec($command, $output, $retVar);
         return array_map(function ($string) {
            return $string;
@@ -467,7 +471,7 @@ class CopasiImplementation
             return explode(' & ', $row);
         }, explode(' \\\\ \hline', $tables[1])));
 
-        return $tables[1] . '\n' . implode("\n", $result);
+        return $tables[1] . '\newline ' . implode("\n", $result);
     }
 
 
