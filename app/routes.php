@@ -149,12 +149,6 @@ return function(App $app) {
         return \Controllers\Endpoints\AnalysisManager::responsePrescription($response, $name);
     });
 
-    $app->get('/models/copasi/analysisAnnotation/{name}', function (Request $request, Response $response, $args){
-        $name = $args['name'];
-        AnalysisManager::setAnalysisClass(CopasiImplementation::class);
-        return \Controllers\Endpoints\AnalysisManager::responseAnnotation($response, $name);
-    });
-
     $app->post('/models/copasi/runAnalysis/{name}', function (Request $request, Response $response, $args){
         $name = $args['name'];
         AnalysisManager::setAnalysisClass(CopasiImplementation::class);

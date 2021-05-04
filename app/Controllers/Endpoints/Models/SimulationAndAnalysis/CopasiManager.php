@@ -21,7 +21,7 @@ class Copasi
     private $errors;
     private $modelAlias;
 
-    public function createCopasiSource($modelId, $accessToken, $dataset)
+    public function createCopasiSource($modelId, $accessToken, $dataset = null)
     {
         $data = DataApi::getWithBody("models/". $modelId . '/SBML', $accessToken, json_encode($dataset));
         $name = md5($data);
@@ -38,7 +38,7 @@ class Copasi
         $this->sbmlPath = $modelPath . '.sbml';
         $this->errors = $modelPath . '_errors.txt';
         $this->reportPath = $modelPath;
-        $command = "{$this->binaryPath} --home \\ --nologo  -i {$this->sbmlPath} -s {$this->cpsPath}";
+        $command = "{$this->binaryPath} --home \\ --nologo  -i {$this->sbmlPath} -s {$this->cpsPath} 2> {$this->errors}";
         exec($command, $cmdOutput, $cmdReturnValue);
         return $cmdReturnValue;
     }
@@ -187,11 +187,7 @@ class Copasi
         $command = "\"{$this->binaryPath}\" --home \\ --nologo  {$this->cpsPath} 2> {$this->errors}";
 
         exec($command, $results, $retVar);
-        if ($retVar != 0) {
-            $strErr = preg_replace('/\/.*\.cps/', $this->modelAlias, file_get_contents($this->errors));
-            throw new OperationFailedException(str_replace(PHP_EOL, ' ', $strErr));
-        }
-
+        $this->checkCopasiError($retVar);
         $this->trimCopasiReport('Time-Course Result');
         return $this->reportPath;
     }
@@ -200,6 +196,117 @@ class Copasi
     {
         $output = file_get_contents($this->reportPath);
         file_put_contents($this->reportPath,substr(strstr($output, $name), strlen($name) + 3)); //3 = : + \n + \n
+    }
+
+    protected function checkCopasiError(int $returns)
+    {
+        if ($returns != 0) {
+            $strErr = preg_replace('/\/.*\.cps/', $this->modelAlias, file_get_contents($this->errors));
+            throw new OperationFailedException(str_replace(PHP_EOL, ' ', $strErr));
+        }
+    }
+
+    public function stoichiometry()
+    {
+        $this->reportPath = $this->reportPath . '_stoichiometry.txt';
+        $cps = new DOMDocument();
+
+        if(!@$cps->load($this->cpsPath) || (filesize($this->cpsPath) < 100))
+        {
+//            $output['error'] = file_get_contents($output['errorFile']);
+//            $output['error'] .= "Failed to load file: {$output['sourceFile']}";
+//
+//            return $output;
+        }
+
+        $xpath = new DOMXpath($cps);
+
+        $xpath->registerNamespace('x', "http://www.copasi.org/static/schema");
+        $lTask = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Moieties']");
+
+        foreach($lTask as $item) {
+//            $old_el = $item->getElementsByTagName('Problem')->item(0);
+//            $new_el = $cps->createElement('Report');
+//            $item->replaceChild($new_el, $old_el);
+            $item->setAttribute("scheduled", "true");
+
+        }
+
+        $lTask = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Moieties']/x:Report");
+
+        foreach($lTask as $item) {
+            $item->setAttribute("reference", "mass");
+            $item->setAttribute("target", $this->reportPath);
+            $item->setAttribute("append", "0");
+        }
+
+
+        $lMethod = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Moieties']/Method");
+
+        foreach($lMethod as $item) {
+            $item->setAttribute("name", "Householder Reduction");
+            $item->setAttribute("type", "Householder");
+        }
+
+
+        $lReports = $xpath->query("/x:COPASI/x:ListOfReports");
+
+        foreach($lReports as $item) {
+            $rpt = $cps->createElement('Report');
+            $rpt->setAttribute("key", "mass");
+            $rpt->setAttribute("name", "mass");
+            $rpt->setAttribute("taskType", "moieties");
+            $rpt->setAttribute("separator", " ");
+            $rpt->setAttribute("precision", "6");
+
+            $header = $cps->createElement('Header');
+
+            //smycka
+            $contentCN ="CN=Root,Vector=TaskList[Moieties],Object=Result";
+            $object = $cps->createElement('Object');
+            $object->setAttribute("cn", "{$contentCN}");
+            $header->appendChild($object);
+
+
+            $rpt->appendChild($header);
+            $item->appendChild($rpt);
+        }
+
+        $cps->save($this->cpsPath);
+
+        $command = "\"{$this->binaryPath}\" --home \\ --nologo {$this->cpsPath} 2> {$this->errors}";
+
+        exec($command, $cmdOutput, $retVar);
+        $this->checkCopasiError($retVar);
+        return file_get_contents($this->reportPath);
+    }
+
+    public function getZeroDeficiency($matrix)
+    {
+        $size = count($matrix);
+        unset($matrix[$size-1]);
+        unset($matrix[0]);
+        $stringMx = '[';
+        $mxSize = count($matrix);
+        $rowCount = 0;
+        foreach ($matrix as $row){
+            $stringRow = '[';
+            for ($i = 0; $i < count($row); $i++) {
+                if ($i !== 0) {
+                    $stringRow .= $row[$i];
+                    $stringRow .= count($row) - 1 == $i ? '' : ',';
+                }
+            }
+            $rowCount++;
+            $stringMx .= $stringRow;
+            $stringMx .= $rowCount == $mxSize ? ']]' : '],';
+        }
+        $bin = '../../.copasi/ZeroDeficiency.py';
+        $command = "python3.6 {$bin} -m $stringMx";
+        exec($command, $output, $retVar);
+        return array_map(function ($string) {
+           return $string;
+        }, $output);
     }
 
     /**
@@ -236,6 +343,10 @@ class Copasi
 
 }
 
+/**
+ * Class CopasiImplementation prepares outputs from CopasiManager class and outputs them.
+ * @package Controllers\Endpoints
+ */
 class CopasiImplementation
 {
 
@@ -272,6 +383,88 @@ class CopasiImplementation
         $path = $task->timeCourse($time_course_settings, $solver);
         return (new ModelChartData($accessToken, $path, $modelId))
             ->getContentChart(key_exists('name', $dataset) ? $dataset['name'] : 'custom');
+    }
+
+    /**
+     * @param string $accessToken
+     * @param int $modelId
+     * @return string LaTEX
+     */
+    static function stoichiometry(string $accessToken, int $modelId)
+    {
+        $task = new Copasi();
+        $task->createCopasiSource($modelId, $accessToken);
+        $data = $task->stoichiometry();
+        //Transform to LaTEX
+        $data = str_replace("\t",' & ', $data);
+        preg_match_all('/(.* & ).*(?=\n)/', $data, $allTables);
+        $tables = [];
+        $table = '';
+        $tableDefined = false;
+        foreach ($allTables[0] as $row) {
+            if (substr($row, 0, 3) === ' & ') {
+                $table .= '\end{tabular}' . '\end{table}';
+                array_push($tables, $table);
+                $tableDefined = false;
+            }
+            if (!$tableDefined) {
+                $table = '\begin{table}[] \centering ';
+                $rowDef = str_repeat("l|", substr_count($row, ' & ') + 1);
+                $table .= '\begin{tabular}{|' . $rowDef . '} \hline ';
+                $tableDefined = true;
+            }
+            $table .= $row . ' \\\\ \hline ';
+        }
+        $table .= '\end{tabular}' . '\end{table}';
+        array_push($tables, $table);
+
+        foreach ($tables as $key => $table){
+            if ($key == 0){
+                $data = "Moieties Result: \n " . $table . strstr($data, 'Stoichiometry');
+            } else {
+                $data = preg_replace('/\n & .*\n\n/sU', $table, $data, 1);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param string $accessToken
+     * @param int $modelId
+     * @return string LaTEX
+     */
+    static function zeroDeficiency(string $accessToken, int $modelId): string {
+        $task = new Copasi();
+        $task->createCopasiSource($modelId, $accessToken);
+        $data = $task->stoichiometry();
+        //Transform to LaTEX
+        $data = str_replace("\t",' & ', $data);
+        preg_match_all('/(.* & ).*(?=\n)/', $data, $allTables);
+        $tables = [];
+        $table = '';
+        $tableDefined = false;
+        foreach ($allTables[0] as $row) {
+            if (substr($row, 0, 3) === ' & ') {
+                $table .= '\end{tabular}' . '\end{table}';
+                array_push($tables, $table);
+                $tableDefined = false;
+            }
+            if (!$tableDefined) {
+                $table = '\begin{table}[] \centering ';
+                $rowDef = str_repeat("l|", substr_count($row, ' & ') + 1);
+                $table .= '\begin{tabular}{|' . $rowDef . '} \hline ';
+                $tableDefined = true;
+            }
+            $table .= $row . ' \\\\ \hline ';
+        }
+        $table .= '\end{tabular}' . '\end{table}';
+        array_push($tables, $table);
+
+        $result = $task->getZeroDeficiency(array_map(function (string $row){
+            return explode(' & ', $row);
+        }, explode(' \\\\ \hline', $tables[1])));
+
+        return $tables[1] . '\n' . implode("\n", $result);
     }
 
 
