@@ -24,6 +24,9 @@ class Copasi
     public function createCopasiSource($modelId, $accessToken, $dataset = null)
     {
         $data = DataApi::getWithBody("models/". $modelId . '/SBML', $accessToken, json_encode($dataset));
+        if (!$data) {
+            throw new OperationFailedException('Failed');
+        }
         $name = md5($data);
         $this->modelAlias = $name;
 
