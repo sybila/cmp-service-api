@@ -10,7 +10,7 @@ use VariableId;
 class Implementation {
 
     /**
-     * Average of one variable.
+     * The mean of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment Experiment identifier
      * @param VariableId $variable Variable identifier
@@ -24,7 +24,7 @@ class Implementation {
     }
 
     /**
-     * Maximum of one variable.
+     * the maximum value of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
@@ -38,7 +38,7 @@ class Implementation {
     }
 
     /**
-     * Minimum of one variable.
+     * the minimum value of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
@@ -52,7 +52,7 @@ class Implementation {
     }
 
     /**
-     * Median of one variable.
+     * The median of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
@@ -67,10 +67,11 @@ class Implementation {
     }
 
     /**
+     * The variance of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
-     * @param bool $isWholePopulation
+     * @param bool $isWholePopulation Are data measured for whole population?
      * @return float|int
      * @throws AccessForbiddenException
      * @throws OperationFailedException
@@ -90,10 +91,11 @@ class Implementation {
     }
 
     /**
+     * The standard deviation of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
-     * @param bool $isWholePopulation
+     * @param bool $isWholePopulation Are data measured for whole population?
      * @return float
      * @throws AccessForbiddenException
      * @throws OperationFailedException
@@ -105,11 +107,12 @@ class Implementation {
     }
 
     /**
+     * The mean of two variables. Result is new time series.
      * @param string $accessToken
-     * @param ExperimentId $experiment1
-     * @param VariableId $variable1
-     * @param ExperimentId $experiment2
-     * @param VariableId $variable2
+     * @param ExperimentId $experiment1 First experiment.
+     * @param VariableId $variable1 Variable of first experiment.
+     * @param ExperimentId $experiment2 Second experiment.
+     * @param VariableId $variable2 Variable of second experiment.
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -138,11 +141,12 @@ class Implementation {
     }
 
     /**
+     * The mean of two variables. Result is new time series.
      * @param string $accessToken
-     * @param ExperimentId $experiment1
-     * @param VariableId $variable1
-     * @param ExperimentId $experiment2
-     * @param VariableId $variable2
+     * @param ExperimentId $experiment1 First experiment.
+     * @param VariableId $variable1 Variable of first experiment.
+     * @param ExperimentId $experiment2 Second experiment.
+     * @param VariableId $variable2 Variable of second experiment.
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -171,6 +175,7 @@ class Implementation {
     }
 
     /**
+     * The linear regression of one variable. Intersects the data with a straight line.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
@@ -316,12 +321,13 @@ class Implementation {
     }
 
     /**
+     * Find local extremes in variable. There is very important how the parameters are set.
      * @param string $accessToken
      * @param ExperimentId $experiment
      * @param VariableId $variable
-     * @param int|null $lag
-     * @param float|null $influence
-     * @param float|null $threshold
+     * @param int|null $lag  The lag parameter determines how much your data will be smoothed and how adaptive the algorithm is to changes in the long-term average of the data. The more stationary your data is, the more lags you should include (this should improve the robustness of the algorithm). If your data contains time-varying trends, you should consider how quickly you want the algorithm to adapt to these trends. i.e., if you put lag at 10, it takes 10 'periods' before the algorithm's threshold is adjusted to any systematic changes in the long-term average. So choose the lag parameter based on the trending behaviour of your data and how adaptive you want the algorithm to be.
+     * @param float|null $influence This parameter determines the influence of signals on the algorithm's detection threshold. If put at 0, signals have no influence on the threshold, such that future signals are detected based on a threshold that is calculated with a mean and standard deviation that is not influenced by past signals. Another way to think about this is that if you put the influence at 0, you implicitly assume stationarity (i.e. no matter how many signals there are, the time series always returns to the same average over the long term). If this is not the case, you should put the influence parameter somewhere between 0 and 1, depending on the extent to which signals can systematically influence the time-varying trend of the data. e.g., if signals lead to a structural break of the long-term average of the time series, the influence parameter should be put high (close to 1) so the threshold can adjust to these changes quickly.
+     * @param float|null $threshold The threshold parameter is the number of standard deviations from the moving mean above which the algorithm will classify a new datapoint as being a signal. For example, if a new datapoint is 4.0 standard deviations above the moving mean and the threshold parameter is set as 3.5, the algorithm will identify the datapoint as a signal. This parameter should be set based on how many signals you expect. For example, if your data is normally distributed, a threshold (or: z-score) of 3.5 corresponds to a signalling probability of 0.00047 (from this table), which implies that you expect a signal once every 2128 datapoints (1/0.00047). The threshold therefore directly influences how sensitive the algorithm is and thereby also how often the algorithm signals. Examine your own data and determine a sensible threshold that makes the algorithm signal when you want it to (some trial-and-error might be needed here to get to a good threshold for your purpose).
      * @return array
      * @throws AccessForbiddenException
      * @throws OperationFailedException
@@ -401,17 +407,10 @@ class Implementation {
         return $corr;
     }
 
-    static function polynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree): array {
+    static function variablePolynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree): array {
         $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
-        /*$times = [0, 0.25, 0.5, 0.75, 1];
-        $timeSeries = array();
-        $timeSeries["0.0"] = 1;
-        $timeSeries["0.25"] = 1.284;
-        $timeSeries["0.5"] = 1.6487;
-        $timeSeries["0.75"] = 2.1170;
-        $timeSeries["1.0"] = 2.7183;*/
         $matrix = array();
         for($i=0;$i<$maximumDegree;$i++){
             $matrix[] = array();
@@ -423,7 +422,6 @@ class Implementation {
                 $matrix[$i][$j] = $x_i_j;
             }
         }
-        //print_r($matrix);
         $targets = [];
         for($i=0;$i<$maximumDegree;$i++){
             $y = 0;
