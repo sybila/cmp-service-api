@@ -14,7 +14,7 @@ use Slim\Http\Response;
 
 class Copasi
 {
-    private $binaryPath = '../../.copasi/bin/CopasiSE';
+    private $binaryPath = '../external_analysis_tools/third_party/copasi/bin/CopasiSE';
     private $cpsPath;
     private $sbmlPath;
     private $reportPath;
@@ -301,7 +301,7 @@ class Copasi
             $stringMx .= $stringRow;
             $stringMx .= $rowCount == $mxSize ? ']]' : '],';
         }
-        $bin = '../../.copasi/ZeroDeficiency.py';
+        $bin = '../external_analysis_tools/ZeroDeficiency.py';
         $command = "python3.6 {$bin} -m $stringMx";
         exec($command, $output, $retVar);
         return array_map(function ($string) {
