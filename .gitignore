@@ -1,6 +1,6 @@
 /.idea
 nbproject/
-app/settings.local.php
+settings.local.php
 /vendor
 /composer.lock
 /www/docs

@@ -26,7 +26,7 @@ class Copasi
     {
         $data = DataApi::getWithBody("models/". $modelId . '/SBML', $accessToken, json_encode($dataset));
         if (!$data) {
-            throw new OperationFailedException('Failed');
+            throw new OperationFailedException('Failed to get the model from the DATA api.');
         }
         $name = md5($data);
         $this->modelAlias = $name;
