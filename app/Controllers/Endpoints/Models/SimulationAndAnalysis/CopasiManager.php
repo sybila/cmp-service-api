@@ -6,6 +6,7 @@ use App\Exceptions\OperationFailedException;
 use Controllers\Abstracts\AbstractController;
 use DOMDocument;
 use DOMXPath;
+use LaTeX;
 use Libs\DataApi;
 use ModelChartData;
 use ReflectionMethod;
@@ -363,7 +364,7 @@ class CopasiImplementation
      * @param array $dataset
      * @param float $sim_steps
      * @param float $sim_step_size
-     * @param float $sim_end
+     * @param int $duration
      * @param float $sim_time_series
      * @param float $sim_start
      * @param float $sim_event
@@ -375,11 +376,12 @@ class CopasiImplementation
      * @return array
      * @throws OperationFailedException
      */
-    static function simulation(string $accessToken, int $modelId, array $dataset, float $sim_steps, float $sim_step_size, float  $sim_end, float $sim_time_series,
-                               float $sim_start, float $sim_event, float $sim_reduced_model, float$sim_relative_tolerance,
-                               float $sim_absolute_tolerance, float $sim_max_internal_steps, ?string $solver) {
+    static function simulation(string $accessToken, int $modelId, array $dataset, float $sim_steps, float $sim_step_size,
+                               int  $duration, float $sim_time_series, float $sim_start, float $sim_event,
+                               float $sim_reduced_model, float $sim_relative_tolerance, float $sim_absolute_tolerance,
+                               float $sim_max_internal_steps, ?string $solver) {
 
-        $time_course_settings = ['sim_steps' => $sim_steps, 'sim_step_size' => $sim_step_size, 'sim_end' =>  $sim_end,
+        $time_course_settings = ['sim_steps' => $sim_steps, 'sim_step_size' => $sim_step_size, 'sim_end' =>  $duration,
             'sim_time_series' => $sim_time_series, 'sim_start' => $sim_start, 'sim_event' => $sim_event,
             'sim_reduced_model' => $sim_reduced_model, 'sim_relative_tolerance' => $sim_relative_tolerance,
             'sim_absolute_tolerance' => $sim_absolute_tolerance, 'sim_max_internal_steps' => $sim_max_internal_steps];
@@ -395,9 +397,10 @@ class CopasiImplementation
     /**
      * @param string $accessToken
      * @param int $modelId
-     * @return string LaTEX
+     * @return LaTeX
+     * @throws OperationFailedException
      */
-    static function stoichiometry(string $accessToken, int $modelId)
+    static function stoichiometry(string $accessToken, int $modelId): LaTeX
     {
         $task = new Copasi();
         $task->createCopasiSource($modelId, $accessToken);
@@ -432,15 +435,17 @@ class CopasiImplementation
                 $data = preg_replace('/\n & .*\n\n/sU', $table, $data, 1);
             }
         }
-        return $data;
+        return new LaTeX($data);
     }
 
     /**
      * @param string $accessToken
      * @param int $modelId
-     * @return string LaTEX
+     * @return LaTeX LaTEX
+     * @throws OperationFailedException
      */
-    static function zeroDeficiency(string $accessToken, int $modelId): string {
+    static function zeroDeficiency(string $accessToken, int $modelId): LaTeX
+    {
         $task = new Copasi();
         $task->createCopasiSource($modelId, $accessToken);
         $data = $task->stoichiometry();
@@ -471,7 +476,7 @@ class CopasiImplementation
             return explode(' & ', $row);
         }, explode(' \\\\ \hline', $tables[1])));
 
-        return $tables[1] . '\newline ' . implode("\n", $result);
+        return new LaTeX($tables[1] . '\newline ' . implode("\n", $result));
     }
 
 
