@@ -3,6 +3,7 @@ namespace Controllers\Endpoints;
 use App\Exceptions\NonExistingAnalysisMethod;
 use Controllers\Abstracts\AbstractController;
 use Controllers\Endpoints\AnalysisManager\Implementation;
+use LaTeX;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
@@ -86,8 +87,13 @@ class AnalysisManager extends AbstractController
         $f = self::getAnalysisMethod($methodName);
         $inputs = self::prepareInputs($request, $methodName);
         $result = $f->invokeArgs((object)self::$analysisClass, $inputs);
-        return ['outputType' => ''. $f->getReturnType(), 'result' => $result];
+        if (get_class($result) == LaTeX::class){
+            return ['outputType' => ''. $f->getReturnType(), 'result' => (string) $result];
+        } else {
+            return ['outputType' => ''. $f->getReturnType(), 'result' => $result];
+        }
     }
+
 
     /**
      * @param string $name
