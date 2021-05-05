@@ -9,7 +9,8 @@ return [
                 'ConsoleAccounts' => ['dev' => '34c6fceca75e456f25e7e99531e2425c6c1de443']// = sha1('dev')
             ]
         ],
-    'data_api_url' => 'https://api.e-cyanobacterium.org/',
-    'not_psw' => 'loose_all_your_money'
+        'data_api_url' => 'http://localhost.dapi/',
+        'not_psw' => 'loose_all_your_money',
+        'python' => 'python3.6'
 	],
 ];

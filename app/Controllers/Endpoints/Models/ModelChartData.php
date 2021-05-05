@@ -38,25 +38,21 @@ class ModelChartData
         }
     }
 
-
-    private function getModelName()
-    {
-        $exp = DataApi::get("models/". $this->modelId, $this->accessToken);
-        if($exp['status'] == 'ok'){
-            $this->graphsets = $exp['data']['graphsets'];
-            return $exp['data']['name'];
-        }
-    }
-
     function random_color($id) {
         return substr(md5($id), 0, 6);
     }
 
     private function createLegend(){
         $color = 0;
-        foreach($this->variablesList as $var){
-            $this->legend[] = ['name'=> $var, 'color'=> $this->random_color($color)];
-            $color+=2;
+        $at = 0;
+        foreach($this->variablesList as $key => $var){
+            if ($at === 0) {
+                unset($this->variablesList[$key]);
+            } else {
+                $this->legend[] = ['name'=> $var, 'color'=> $this->random_color($color)];
+                $color+=2;
+            }
+            $at++;
         }
     }
 
