@@ -112,22 +112,41 @@ class AnalysisManager extends AbstractController
             $methodDescription = $annotation['description'];
             $outputDescription = $annotation['output']['description'];
         }
+        $inputGroups = [];
         foreach ($f->getParameters() as $param) {
             if($param->name == "accessToken"){
                 continue;
             }
             $description = null;
             if($annotation != ['annotation' => "Doesn't have an annotation."]){
-                $description = $annotation['params'][$param->name]['description'];
+                $description = $annotation['params'][$param->name];
             }
-            $result[] = array('key' => $param->name,
-                'name' => self::convertMethodNameToAnalysisName($param->name),
-                'type' => '' . $param->getType(),
-                'description'=> $description);
+            $tags = $description['iTags'];
+            if (!is_null($tags)) {
+                if (key_exists('group', $tags)){
+                    $group = $tags['group'];
+                    unset($tags['group']);
+                    $inputGroups[$group][] = array_merge($tags,
+                        array('key' => $param->name,
+                            'name' => self::convertMethodNameToAnalysisName($param->name),
+                            'type' => '' . $param->getType(),
+                            'description'=> $description['description']));
+                } else {
+                    $inputGroups['nongrouped'][] = array_merge($tags,
+                        array('key' => $param->name,
+                            'name' => self::convertMethodNameToAnalysisName($param->name),
+                            'type' => '' . $param->getType(),
+                            'description'=> $description['description']));
+                }
+            }
+        }
+        foreach ($inputGroups as $key => $group) {
+            $result[] = ['name' => $key,
+                'inputs' => $group];
         }
         return array('name' => $name,
             'description' => $methodDescription,
-            'inputs' => $result,
+            'inputGroups' => $result,
             'output' => array('type'=>''. $f->getReturnType(),
                 'description'=>$outputDescription));
     }
@@ -144,16 +163,19 @@ class AnalysisManager extends AbstractController
         if(!$doc){
             return ['annotation' => "Doesn't have an annotation."];
         }
-        $doc = str_replace("/","",$doc);
-        $doc = str_replace("*","",$doc);
-        $docSegments = explode("\n", $doc);
+        $doc = preg_replace(['/\s+/',"/\*/", "/\//"], [" ","",""], $doc);
+        $docSegments = explode("@", $doc);
+        array_shift($docSegments);
+        $docSegments = array_map(function ($paramAnn) {
+                return '@' . $paramAnn;
+            }, $docSegments);
         $description = null;
         $return = null;
         $params = array();
         foreach ($docSegments as $segment){
             if(strpos($segment, '@param') !== false){
-                list($name, $type, $paramDescription) = self::parseAnnotationLine($segment);
-                $params[$name] = array('type' => $type, 'description' => $paramDescription);
+                list($name, $type, $paramDescription, $iTag) = self::parseAnnotationLine($segment);
+                $params[$name] = array('type' => $type, 'description' => $paramDescription, 'iTags' => $iTag);
             } elseif(strpos($segment, '@return') !== false){
                 $outputAttributes = preg_split("/[\s,]+/", $segment, 4);
                 $outputDescription = null;
@@ -173,14 +195,19 @@ class AnalysisManager extends AbstractController
 
     private static function parseAnnotationLine($line):array
     {
-        $paramAttributes = preg_split("/[\s,]+/", $line, 5);
-        $name = str_replace("$", "", $paramAttributes[3]);
+        $paramAttributes = preg_split("/[\s,]+/", $line, 4);
+        $name = str_replace("$", "", $paramAttributes[2]);
         $description = null;
-        if(count($paramAttributes) > 4){
-            $description = $paramAttributes[4];
+        $internalTags = [];
+        if(count($paramAttributes) > 3){
+            $description = preg_replace_callback("/\[.*]/U", function ($matches) use (&$internalTags){
+                $splitTag = preg_split("/=/", substr(current($matches), 1, -1), 2);
+                $internalTags[$splitTag[0]] = $splitTag[1];
+                return '';
+            }, $paramAttributes[3]);
         }
-        $type = $paramAttributes[2];
-        return array($name, $type, $description);
+        $type = $paramAttributes[1];
+        return array($name, $type, $description, $internalTags);
     }
 
     /**
