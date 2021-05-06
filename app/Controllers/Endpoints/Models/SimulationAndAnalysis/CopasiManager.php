@@ -81,22 +81,22 @@ class Copasi
         foreach($timeCourseAttributes as $item) {
             switch($item->getAttribute("name")) {
                 case "StepNumber":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_steps']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['stepNumber']}");
                     break;
                 case "StepSize":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_step_size']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['stepSize']}");
                     break;
                 case "Duration":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_end']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['duration']}");
                     break;
                 case "TimeSeriesRequested":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_time_series']}");
+                    $item->setAttribute("value", "1");
                     break;
                 case "OutputStartTime":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_start']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['outputStartTime']}");
                     break;
                 case "Output Event":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_event']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['outputEvents']}");
                     break;
             }
         }
@@ -106,16 +106,19 @@ class Copasi
         foreach($timeCourseMethodAttributes as $item) {
             switch($item->getAttribute("name")) {
                 case "Integrate Reduced Model":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_reduced_model']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['integrateReducedModel']}");
                     break;
                 case "Relative Tolerance":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_relative_tolerance']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['relativeTolerance']}");
                     break;
                 case "Absolute Tolerance":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_absolute_tolerance']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['absoluteTolerance']}");
                     break;
                 case "Max Internal Steps":
-                    $item->setAttribute("value", "{$timeCourseSettings['sim_max_internal_steps']}");
+                    $item->setAttribute("value", "{$timeCourseSettings['maxInternalSteps']}");
+                    break;
+                case "Max Internal Step Size":
+                    $item->setAttribute("value", "{$timeCourseSettings['maxInternalStepSize']}");
                     break;
             }
         }
@@ -362,29 +365,30 @@ class CopasiImplementation
      * @param string $accessToken
      * @param int $modelId
      * @param array $dataset
-     * @param float $sim_steps
-     * @param float $sim_step_size
-     * @param int $duration
-     * @param float $sim_time_series
-     * @param float $sim_start
-     * @param float $sim_event
-     * @param float $sim_reduced_model
-     * @param float $sim_relative_tolerance
-     * @param float $sim_absolute_tolerance
-     * @param float $sim_max_internal_steps
+     * @param float $duration
+     * @param int $stepNumber
+     * @param float $stepSize
+     * @param float $outputStartTime
+     * @param bool $outputEvents
      * @param string|null $solver LSODA or RADAU5
+     * @param bool $integrateReducedModel
+     * @param float $relativeTolerance
+     * @param float $absoluteTolerance
+     * @param float $maxInternalSteps
+     * @param float $maxInternalStepSize
      * @return array
      * @throws OperationFailedException
      */
-    static function simulation(string $accessToken, int $modelId, array $dataset, float $sim_steps, float $sim_step_size,
-                               int  $duration, float $sim_time_series, float $sim_start, float $sim_event,
-                               float $sim_reduced_model, float $sim_relative_tolerance, float $sim_absolute_tolerance,
-                               float $sim_max_internal_steps, ?string $solver) {
+    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration, int $stepNumber,
+                               float $stepSize, float $outputStartTime, bool $outputEvents, ?string $solver,
+                               bool $integrateReducedModel, float $relativeTolerance, float $absoluteTolerance,
+                               float $maxInternalSteps, float $maxInternalStepSize) {
 
-        $time_course_settings = ['sim_steps' => $sim_steps, 'sim_step_size' => $sim_step_size, 'sim_end' =>  $duration,
-            'sim_time_series' => $sim_time_series, 'sim_start' => $sim_start, 'sim_event' => $sim_event,
-            'sim_reduced_model' => $sim_reduced_model, 'sim_relative_tolerance' => $sim_relative_tolerance,
-            'sim_absolute_tolerance' => $sim_absolute_tolerance, 'sim_max_internal_steps' => $sim_max_internal_steps];
+        $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
+            'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
+            'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
+            'absoluteTolerance' => $absoluteTolerance, 'maxInternalSteps' => $maxInternalSteps,
+            'maxInternalStepSize' => $maxInternalStepSize];
 
         $task = new Copasi();
         $task->createCopasiSource($modelId, $accessToken, $dataset);
