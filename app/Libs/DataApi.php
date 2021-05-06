@@ -207,8 +207,9 @@ class DataApi{
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         $data = curl_exec($ch);
         $jsonResponse = json_decode($data, true);
+
         if ($jsonResponse != null && $jsonResponse['status'] !== 'ok') {
-            throw new DataAPIException($jsonResponse['message']);
+            throw new DataAPIException($jsonResponse['message'], $jsonResponse['code']);
         }
         curl_close($ch);
         if ($outputType === self::GET_JSON) {

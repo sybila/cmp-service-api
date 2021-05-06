@@ -123,21 +123,16 @@ class AnalysisManager extends AbstractController
             }
             $tags = $description['iTags'];
             if (!is_null($tags)) {
+                $group = 'nongrouped';
                 if (key_exists('group', $tags)){
                     $group = $tags['group'];
                     unset($tags['group']);
-                    $inputGroups[$group][] = array_merge($tags,
-                        array('key' => $param->name,
-                            'name' => self::convertMethodNameToAnalysisName($param->name),
-                            'type' => '' . $param->getType(),
-                            'description'=> $description['description']));
-                } else {
-                    $inputGroups['nongrouped'][] = array_merge($tags,
-                        array('key' => $param->name,
-                            'name' => self::convertMethodNameToAnalysisName($param->name),
-                            'type' => '' . $param->getType(),
-                            'description'=> $description['description']));
                 }
+                $inputGroups[$group][] = array_merge($tags,
+                    array('key' => $param->name,
+                        'name' => self::convertMethodNameToAnalysisName($param->name),
+                        'type' => '' . $param->getType(),
+                        'description'=> $description['description']));
             }
         }
         foreach ($inputGroups as $key => $group) {
@@ -227,15 +222,17 @@ class AnalysisManager extends AbstractController
         $inputs = array($accessToken);
         $inputsBody =  $request->getParsedBody()['inputs'];
         $inputsPrescription = self::getPrescription($name);
-        foreach ($inputsPrescription["inputs"] as $input) {
-            if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
-            {
-                $typeName = $input["type"];
-                $new_input = new $typeName($inputsBody[0][$input["name"]]);
-            } else{
-                $new_input = $inputsBody[0][$input["name"]];
+        foreach ($inputsPrescription["inputGroups"] as $group) {
+            foreach ($group['inputs'] as $input){
+                if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
+                {
+                    $typeName = $input["type"];
+                    $new_input = new $typeName($inputsBody[0][$input["name"]]);
+                } else {
+                    $new_input = $inputsBody[0][$input["name"]];
+                }
+                array_push($inputs, $new_input);
             }
-            array_push($inputs, $new_input);
         }
         return $inputs;
     }

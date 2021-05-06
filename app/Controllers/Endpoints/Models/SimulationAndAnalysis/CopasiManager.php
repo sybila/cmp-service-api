@@ -391,9 +391,9 @@ class CopasiImplementation
      * @throws OperationFailedException
      */
     static function simulation(string $accessToken, int $modelId, array $dataset, float $duration, int $stepNumber,
-                               float $stepSize, float $outputStartTime, bool $outputEvents, ?string $solver,
-                               bool $integrateReducedModel, float $relativeTolerance, float $absoluteTolerance, float $maxInternalSteps = 10000,
-                               float $maxInternalStepSize = 0) {
+                               float $stepSize, float $outputStartTime, bool $outputEvents, string $solver,
+                               bool $integrateReducedModel, float $relativeTolerance, float $absoluteTolerance, float $maxInternalSteps,
+                               float $maxInternalStepSize) {
         $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
             'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
             'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
