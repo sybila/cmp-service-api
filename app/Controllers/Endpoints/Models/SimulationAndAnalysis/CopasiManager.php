@@ -365,11 +365,11 @@ class CopasiImplementation
      * @param string $accessToken
      * @param int $modelId
      * @param array $dataset
-     * @param float $duration
-     * @param int $stepNumber
-     * @param float $stepSize
+     * @param float $duration duration of the simulation
+     * @param int $stepNumber number of calculated steps during the duration
+     * @param float $stepSize size of the steps
      * @param float $outputStartTime
-     * @param bool $outputEvents
+     * @param bool $outputEvents Do you wish to include events in the simulation?
      * @param string|null $solver LSODA or RADAU5
      * @param bool $integrateReducedModel
      * @param float $relativeTolerance
