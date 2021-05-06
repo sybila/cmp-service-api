@@ -87,7 +87,7 @@ class AnalysisManager extends AbstractController
         $f = self::getAnalysisMethod($methodName);
         $inputs = self::prepareInputs($request, $methodName);
         $result = $f->invokeArgs((object)self::$analysisClass, $inputs);
-        if (get_class($result) == LaTeX::class){
+        if (!is_array($result)){
             return ['outputType' => ''. $f->getReturnType(), 'result' => (string) $result];
         } else {
             return ['outputType' => ''. $f->getReturnType(), 'result' => $result];
