@@ -57,6 +57,11 @@ class Copasi
         $xpath = new DOMXpath($cps);
 
         $xpath->registerNamespace('x', "http://www.copasi.org/static/schema");
+
+        if ($timeCourseSettings['outputEvents']) {
+            $events = $xpath->query("/x:COPASI/x:Model/x:ListOfEvents")->item(0);
+            $events->parentNode->removeChild($events);
+        }
         $tasks = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Time-Course']");
 
         foreach($tasks as $item) {
@@ -364,6 +369,7 @@ class CopasiImplementation
     /**
      * @param string $accessToken
      * @param int $modelId
+     * [group=automatic]
      * @param array $dataset
      * @param float $duration duration of the simulation
      * [required=true] [defaultValue=500]
