@@ -1,10 +1,12 @@
 <?php
 namespace Controllers\Endpoints;
+use App\Exceptions\MissingRequiredKeyException;
 use App\Exceptions\NonExistingAnalysisMethod;
 use Controllers\Abstracts\AbstractController;
 use Controllers\Endpoints\AnalysisManager\Implementation;
 use LaTeX;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use Slim\Http\Request;
@@ -68,7 +70,7 @@ class AnalysisManager extends AbstractController
     {
         try {
             return new ReflectionMethod(self::$analysisClass, $name);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             throw new NonExistingAnalysisMethod($name);
         }
 
@@ -79,7 +81,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return array
      * @throws NonExistingAnalysisMethod
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private static function runAnalysis(Request $request, string $name): array
     {
@@ -99,6 +101,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return array
      * @throws NonExistingAnalysisMethod
+     * @throws ReflectionException
      */
     private static function getPrescription(string $name): array
     {
@@ -127,6 +130,12 @@ class AnalysisManager extends AbstractController
                 if (key_exists('group', $tags)){
                     $group = $tags['group'];
                     unset($tags['group']);
+                }
+                if($param->isOptional()) {
+                    $defaultValue = $param->getDefaultValue();
+                    if ($defaultValue != null) {
+                        $tags["defaultValue"] = $defaultValue;
+                    }
                 }
                 $inputGroups[$group][] = array_merge($tags,
                     array('key' => $param->name,
@@ -210,6 +219,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return string[]
      * @throws NonExistingAnalysisMethod
+     * @throws MissingRequiredKeyException|ReflectionException
      */
     private static function prepareInputs(Request $request, string $name): array
     {
@@ -224,12 +234,19 @@ class AnalysisManager extends AbstractController
         $inputsPrescription = self::getPrescription($name);
         foreach ($inputsPrescription["inputGroups"] as $group) {
             foreach ($group['inputs'] as $input){
+                if(array_key_exists ( $input["name"], $inputsBody[0])){
+                    $value = $inputsBody[0][$input["name"]];
+                } else if(array_key_exists ( "defaultValue", $input)){
+                    $value = $input["defaultValue"];
+                } else{
+                    throw new MissingRequiredKeyException($input["name"]);
+                }
                 if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
                 {
                     $typeName = $input["type"];
-                    $new_input = new $typeName($inputsBody[0][$input["name"]]);
+                    $new_input = new $typeName($value);
                 } else {
-                    $new_input = $inputsBody[0][$input["name"]];
+                    $new_input = $value;
                 }
                 array_push($inputs, $new_input);
             }

@@ -372,34 +372,34 @@ class CopasiImplementation
      * [group=automatic]
      * @param array $dataset
      * @param float $duration duration of the simulation
-     * [required=true] [defaultValue=500]
+     * [required=true]
      * @param int $stepNumber number of calculated steps during the duration
-     * [required=true] [defaultValue=500]
+     * [required=true]
      * @param float $stepSize size of the steps
-     * [required=true] [defaultValue=1]
+     * [required=true]
      * @param float $outputStartTime time when the output starts showing
-     * [required=true] [defaultValue=0]
+     * [required=true]
      * @param bool $outputEvents Do you wish to include events in the simulation?
-     * [required=true] [defaultValue=true]
+     * [required=true]
      * @param string|null $solver
-     * [required=true] [group=advanced] [defaultValue=LSODA]
+     * [required=true] [group=advanced]
      * @param bool $integrateReducedModel Shall the integration be performed using the mass conservation laws?
-     * [required=true] [group=advanced] [defaultValue=true]
+     * [required=true] [group=advanced]
      * @param float $relativeTolerance
-     * [required=true] [group=advanced] [defaultValue=1.0e-06]
+     * [required=true] [group=advanced]
      * @param float $absoluteTolerance
-     * [required=true] [group=advanced] [defaultValue=1.0e-12]
+     * [required=true] [group=advanced]
      * @param float $maxInternalSteps maximal number of internal steps the integrator is allowed to take
-     * [required=true] [group=advanced] [defaultValue=10000]
+     * [required=true] [group=advanced]
      * @param float $maxInternalStepSize maximal size of an internal steps the integrator is allowed to take
-     * [required=false] [group=advanced] [defaultValue=0]
+     * [required=false] [group=advanced]
      * @return array
      * @throws OperationFailedException
      */
-    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration, int $stepNumber,
-                               float $stepSize, float $outputStartTime, bool $outputEvents, string $solver,
-                               bool $integrateReducedModel, float $relativeTolerance, float $absoluteTolerance, float $maxInternalSteps,
-                               float $maxInternalStepSize) {
+    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration=500, int $stepNumber=500,
+                               float $stepSize=1, float $outputStartTime=0, bool $outputEvents=true, string $solver="LSODA",
+                               bool $integrateReducedModel=true, float $relativeTolerance=1.0e-06, float $absoluteTolerance=1.0e-12,
+                               float $maxInternalSteps=10000, float $maxInternalStepSize=0) {
         $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
             'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
             'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
