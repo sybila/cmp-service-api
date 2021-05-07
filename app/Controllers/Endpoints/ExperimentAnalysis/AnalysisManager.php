@@ -211,6 +211,9 @@ class AnalysisManager extends AbstractController
         if(count($paramAttributes) > 3){
             $description = preg_replace_callback("/\[.*]/U", function ($matches) use (&$internalTags){
                 $splitTag = preg_split("/=/", substr(current($matches), 1, -1), 2);
+                if ($splitTag[1] == 'true' || $splitTag[1] == 'false') {
+                    $splitTag[1] = boolval($splitTag[1]);
+                }
                 $internalTags[$splitTag[0]] = $splitTag[1];
                 return '';
             }, $paramAttributes[3]);
