@@ -1,10 +1,12 @@
 <?php
 namespace Controllers\Endpoints;
+use App\Exceptions\MissingRequiredKeyException;
 use App\Exceptions\NonExistingAnalysisMethod;
 use Controllers\Abstracts\AbstractController;
 use Controllers\Endpoints\AnalysisManager\Implementation;
 use LaTeX;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use Slim\Http\Request;
@@ -40,6 +42,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return Response
      * @throws NonExistingAnalysisMethod
+     * @throws ReflectionException
      */
     public static function responsePrescription(Response $response, string $name): \Slim\Http\Response
     {
@@ -68,7 +71,7 @@ class AnalysisManager extends AbstractController
     {
         try {
             return new ReflectionMethod(self::$analysisClass, $name);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             throw new NonExistingAnalysisMethod($name);
         }
 
@@ -79,7 +82,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return array
      * @throws NonExistingAnalysisMethod
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private static function runAnalysis(Request $request, string $name): array
     {
@@ -99,6 +102,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return array
      * @throws NonExistingAnalysisMethod
+     * @throws ReflectionException
      */
     private static function getPrescription(string $name): array
     {
@@ -112,24 +116,48 @@ class AnalysisManager extends AbstractController
             $methodDescription = $annotation['description'];
             $outputDescription = $annotation['output']['description'];
         }
+        $inputGroups = [];
         foreach ($f->getParameters() as $param) {
             if($param->name == "accessToken"){
                 continue;
             }
             $description = null;
             if($annotation != ['annotation' => "Doesn't have an annotation."]){
-                $description = $annotation['params'][$param->name]['description'];
+                $description = $annotation['params'][$param->name];
             }
-            $result[] = array('key' => $param->name,
-                'name' => self::convertMethodNameToAnalysisName($param->name),
-                'type' => '' . $param->getType(),
-                'description'=> $description);
+            $tags = $description['iTags'];
+            $tags["required"] = true;
+            if (!is_null($tags)) {
+                $group = 'nongrouped';
+                if (key_exists('group', $tags)){
+                    $group = $tags['group'];
+                    unset($tags['group']);
+                }
+                if($param->isOptional()) {
+                    $defaultValue = $param->getDefaultValue();
+                    $tags["defaultValue"] = $defaultValue;
+                    $tags["required"] = false;
+                }
+                $inputGroups[$group][] = array_merge($tags,
+                    array('key' => $param->name,
+                        'name' => self::convertMethodNameToAnalysisName($param->name),
+                        'type' => '' . $param->getType(),
+                        'description' => self::combString($description['description']),
+                    ));
+            }
+        }
+        foreach ($inputGroups as $key => $group) {
+            $trimmedKey = trim($key, '~');
+            $expandable = !($trimmedKey === $key);
+            $result[] = ['name' => $trimmedKey,
+                'expandable' => $expandable,
+                'inputs' => $group];
         }
         return array('name' => $name,
-            'description' => $methodDescription,
-            'inputs' => $result,
+            'description' => self::combString($methodDescription),
+            'inputGroups' => $result,
             'output' => array('type'=>''. $f->getReturnType(),
-                'description'=>$outputDescription));
+                'description'=> self::combString($outputDescription)));
     }
 
     /**
@@ -144,21 +172,24 @@ class AnalysisManager extends AbstractController
         if(!$doc){
             return ['annotation' => "Doesn't have an annotation."];
         }
-        $doc = str_replace("/","",$doc);
-        $doc = str_replace("*","",$doc);
-        $docSegments = explode("\n", $doc);
+        $doc = preg_replace(["/\*/", "/\//"], ["",""], $doc);
+        $docSegments = explode("@", $doc);
+        $intro = [array_shift($docSegments)];
+        $docSegments = array_merge($intro, array_map(function ($paramAnn) {
+                return '@' . $paramAnn;
+            }, $docSegments));
         $description = null;
         $return = null;
         $params = array();
         foreach ($docSegments as $segment){
             if(strpos($segment, '@param') !== false){
-                list($name, $type, $paramDescription) = self::parseAnnotationLine($segment);
-                $params[$name] = array('type' => $type, 'description' => $paramDescription);
+                list($name, $type, $paramDescription, $iTags) = self::parseAnnotationLine($segment);
+                $params[$name] = array('type' => $type, 'description' => $paramDescription, 'iTags' => $iTags);
             } elseif(strpos($segment, '@return') !== false){
-                $outputAttributes = preg_split("/[\s,]+/", $segment, 4);
+                $outputAttributes = preg_split("/[\s,]+/", $segment, 3);
                 $outputDescription = null;
-                if(count($outputAttributes) > 3){
-                    $outputDescription = $outputAttributes[3];
+                if(count($outputAttributes) > 2){
+                    $outputDescription = $outputAttributes[2];
                 }
                 $type = $outputAttributes[2];
                 $return =  array('type' => $type, 'description' => $outputDescription);
@@ -173,14 +204,22 @@ class AnalysisManager extends AbstractController
 
     private static function parseAnnotationLine($line):array
     {
-        $paramAttributes = preg_split("/[\s,]+/", $line, 5);
-        $name = str_replace("$", "", $paramAttributes[3]);
+        $paramAttributes = preg_split("/[\s,]+/", $line, 4);
+        $name = str_replace("$", "", $paramAttributes[2]);
         $description = null;
-        if(count($paramAttributes) > 4){
-            $description = $paramAttributes[4];
+        $internalTags = [];
+        if(count($paramAttributes) > 3){
+            $description = preg_replace_callback("/\[.*]/U", function ($matches) use (&$internalTags){
+                $splitTag = preg_split("/=/", substr(current($matches), 1, -1), 2);
+                if ($splitTag[1] == 'true' || $splitTag[1] == 'false') {
+                    $splitTag[1] = boolval($splitTag[1]);
+                }
+                $internalTags[$splitTag[0]] = $splitTag[1];
+                return '';
+            }, $paramAttributes[3]);
         }
-        $type = $paramAttributes[2];
-        return array($name, $type, $description);
+        $type = $paramAttributes[1];
+        return array($name, $type, $description, $internalTags);
     }
 
     /**
@@ -188,6 +227,7 @@ class AnalysisManager extends AbstractController
      * @param string $name
      * @return string[]
      * @throws NonExistingAnalysisMethod
+     * @throws MissingRequiredKeyException|ReflectionException
      */
     private static function prepareInputs(Request $request, string $name): array
     {
@@ -200,15 +240,24 @@ class AnalysisManager extends AbstractController
         $inputs = array($accessToken);
         $inputsBody =  $request->getParsedBody()['inputs'];
         $inputsPrescription = self::getPrescription($name);
-        foreach ($inputsPrescription["inputs"] as $input) {
-            if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
-            {
-                $typeName = $input["type"];
-                $new_input = new $typeName($inputsBody[0][$input["name"]]);
-            } else{
-                $new_input = $inputsBody[0][$input["name"]];
+        foreach ($inputsPrescription["inputGroups"] as $group) {
+            foreach ($group['inputs'] as $input){
+                if(array_key_exists ( $input["name"], $inputsBody[0])){
+                    $value = $inputsBody[0][$input["name"]];
+                } else if(array_key_exists ( "defaultValue", $input)){
+                    $value = $input["defaultValue"];
+                } else{
+                    throw new MissingRequiredKeyException($input["name"]);
+                }
+                if(!in_array($input["type"], ['int', 'string', 'float', 'bool', 'array']))
+                {
+                    $typeName = $input["type"];
+                    $new_input = new $typeName($value);
+                } else {
+                    $new_input = $value;
+                }
+                array_push($inputs, $new_input);
             }
-            array_push($inputs, $new_input);
         }
         return $inputs;
     }
@@ -242,6 +291,11 @@ class AnalysisManager extends AbstractController
     public static function setAnalysisClass(string $analysisClass): void
     {
         self::$analysisClass = $analysisClass;
+    }
+
+    private static function combString(string $string)
+    {
+        return trim(preg_replace('/\s+/', " ", $string));
     }
 
 

@@ -13,6 +13,7 @@ use ReflectionMethod;
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use unsignedInt;
 
 class Copasi
 {
@@ -57,6 +58,11 @@ class Copasi
         $xpath = new DOMXpath($cps);
 
         $xpath->registerNamespace('x', "http://www.copasi.org/static/schema");
+
+        if ($timeCourseSettings['outputEvents']) {
+            $events = $xpath->query("/x:COPASI/x:Model/x:ListOfEvents")->item(0);
+            $events->parentNode->removeChild($events);
+        }
         $tasks = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Time-Course']");
 
         foreach($tasks as $item) {
@@ -362,28 +368,38 @@ class CopasiImplementation
 {
 
     /**
+     * Deterministic time course simulation from COPASI.
      * @param string $accessToken
      * @param int $modelId
+     * [group=automatic]
      * @param array $dataset
      * @param float $duration duration of the simulation
      * @param int $stepNumber number of calculated steps during the duration
+     * [unsigned=true]
      * @param float $stepSize size of the steps
-     * @param float $outputStartTime
+     * @param float $outputStartTime time when the output starts showing
      * @param bool $outputEvents Do you wish to include events in the simulation?
-     * @param string|null $solver LSODA or RADAU5
-     * @param bool $integrateReducedModel
+     * @param string|null $solver
+     * [group=~advanced]
+     * @param bool $integrateReducedModel Shall the integration be performed using the mass conservation laws?
+     * [group=~advanced]
      * @param float $relativeTolerance
+     * [group=~advanced] [unsigned=true]
      * @param float $absoluteTolerance
-     * @param float $maxInternalSteps
-     * @param float $maxInternalStepSize
-     * @return array
+     * [group=~advanced] [unsigned=true]
+     * @param float $maxInternalSteps maximal number of internal steps the integrator is allowed to take
+     * [group=~advanced] [unsigned=true]
+     * @param float $maxInternalStepSize maximal size of an internal steps the integrator is allowed to take
+     * [group=~advanced]
+     * @return array Returns chart information.
      * @throws OperationFailedException
      */
-    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration, int $stepNumber,
-                               float $stepSize, float $outputStartTime, bool $outputEvents, ?string $solver,
-                               bool $integrateReducedModel, float $relativeTolerance, float $absoluteTolerance,
-                               float $maxInternalSteps, float $maxInternalStepSize) {
-
+    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration=500,
+                               int $stepNumber=500,
+                               float $stepSize=1, float $outputStartTime=0, bool $outputEvents=true, string $solver="LSODA",
+                               bool $integrateReducedModel=true, float $relativeTolerance=1.0e-06, float $absoluteTolerance=1.0e-12,
+                               float $maxInternalSteps=10000, float $maxInternalStepSize=0) :array
+    {
         $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
             'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
             'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
@@ -445,7 +461,7 @@ class CopasiImplementation
     /**
      * @param string $accessToken
      * @param int $modelId
-     * @return LaTeX LaTEX
+     * @return LaTeX LaTeX
      * @throws OperationFailedException
      */
     static function zeroDeficiency(string $accessToken, int $modelId): LaTeX

@@ -1,0 +1,86 @@
+#%RAML 1.0 Library
+
+#Experiments types specification
+types:
+  EBaseEntity:
+    properties:
+      id: integer
+      name: string
+  Experiment:
+    type: EBaseEntity
+    properties:
+      description:
+        type: string
+      protocol:
+        type: string
+      started:
+        type: datetime
+      inserted:
+        type: datetime
+      status:
+        type: string | nil
+        enum:
+          - public
+          - private
+          - null
+  ExperimentDetail:
+    type: Experiment
+    properties:
+      organism:
+        type: array
+        items:
+          properties:
+            id: integer
+            name: string
+            code: string
+            experiments:
+              type: array
+              items: EBaseEntity
+      variables:
+        type: array
+        items:
+          properties:
+            id: integer
+            name: string
+            code: string
+            type: string
+      notes: array
+      experimentsInRelation: array
+      models: array
+      devices: array
+  ExperimentValue:
+    type: array
+    items:
+      properties:
+        id: integer
+        time: integer
+        vaue: number
+  ExperimentVariableDetail:
+    type: ExperimentVariable
+    properties:
+      notes: array
+      values:
+        type: array
+        items:
+          properties:
+            id: integer
+            time: integer
+            value: number
+  ExperimentVariable:
+    type: EBaseEntity
+    properties:
+      code: string
+      type: string | nil
+  ExperimentValueDetail:
+    properties:
+      time: integer
+      value: number
+  ExperimentNote:
+    type: EBaseEntity
+  ExperimentsNoteDetail:
+    type: ExperimentNote
+  Devices:
+    type: EBaseEntity
+    properties:
+      type: string
+      annotation: string | nil

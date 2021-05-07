@@ -50,5 +50,4 @@ class LaTeX {
     {
         return $this->string;
     }
-
 }

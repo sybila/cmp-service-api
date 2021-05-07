@@ -349,10 +349,10 @@ class DataAPIException extends ApiException
     /**
      * DataAPIException constructor.
      */
-    public function __construct(string $inheritedError, Throwable $previous = null)
+    public function __construct(string $inheritedError, int $code, Throwable $previous = null)
     {
         parent::__construct($previous)
-            ->setMessage("%s", $inheritedError);
+            ->setMessage("Data API error code: " . $code . ". %s", $inheritedError);
     }
 
 }
