@@ -13,6 +13,7 @@ use ReflectionMethod;
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use unsignedInt;
 
 class Copasi
 {
@@ -367,39 +368,38 @@ class CopasiImplementation
 {
 
     /**
+     * Deterministic time course simulation from COPASI.
      * @param string $accessToken
      * @param int $modelId
      * [group=automatic]
      * @param array $dataset
      * @param float $duration duration of the simulation
-     * [required=true]
      * @param int $stepNumber number of calculated steps during the duration
-     * [required=true]
+     * [unsigned=true]
      * @param float $stepSize size of the steps
-     * [required=true]
      * @param float $outputStartTime time when the output starts showing
-     * [required=true]
      * @param bool $outputEvents Do you wish to include events in the simulation?
-     * [required=true]
      * @param string|null $solver
-     * [required=true] [group=advanced]
+     * [group=~advanced]
      * @param bool $integrateReducedModel Shall the integration be performed using the mass conservation laws?
-     * [required=true] [group=advanced]
+     * [group=~advanced]
      * @param float $relativeTolerance
-     * [required=true] [group=advanced]
+     * [group=~advanced] [unsigned=true]
      * @param float $absoluteTolerance
-     * [required=true] [group=advanced]
+     * [group=~advanced] [unsigned=true]
      * @param float $maxInternalSteps maximal number of internal steps the integrator is allowed to take
-     * [required=true] [group=advanced]
+     * [group=~advanced] [unsigned=true]
      * @param float $maxInternalStepSize maximal size of an internal steps the integrator is allowed to take
-     * [required=false] [group=advanced]
-     * @return array
+     * [group=~advanced]
+     * @return array Returns chart information.
      * @throws OperationFailedException
      */
-    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration=500, int $stepNumber=500,
+    static function simulation(string $accessToken, int $modelId, array $dataset, float $duration=500,
+                               int $stepNumber=500,
                                float $stepSize=1, float $outputStartTime=0, bool $outputEvents=true, string $solver="LSODA",
                                bool $integrateReducedModel=true, float $relativeTolerance=1.0e-06, float $absoluteTolerance=1.0e-12,
-                               float $maxInternalSteps=10000, float $maxInternalStepSize=0) {
+                               float $maxInternalSteps=10000, float $maxInternalStepSize=0) :array
+    {
         $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
             'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
             'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
