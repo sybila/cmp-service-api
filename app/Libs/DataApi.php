@@ -190,21 +190,17 @@ class DataApi{
      * @return array|string
      * @throws OperationFailedException
      */
-    public static function getWithBody(string $path, ?string $access_token, string $body, int $outputType = 0)
+    public static function postOutputXML(string $path, ?string $access_token, string $body, int $outputType = 0)
     {
         $config = require __DIR__ . '/../../app/settings.local.php';
         $c = new Container($config);
         $ch = curl_init($c['settings']['data_api_url'] . $path);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        if($access_token != null){
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', "Authorization: " . $access_token));
-        } else{
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
-        }
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', "Authorization: " . $access_token));
         $data = curl_exec($ch);
         $jsonResponse = json_decode($data, true);
 

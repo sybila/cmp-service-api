@@ -13,7 +13,6 @@ use ReflectionMethod;
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use unsignedInt;
 
 class Copasi
 {
@@ -26,7 +25,7 @@ class Copasi
 
     public function createCopasiSource($modelId, $accessToken, $dataset = null)
     {
-        $data = DataApi::getWithBody("models/". $modelId . '/SBML', $accessToken, json_encode($dataset));
+        $data = DataApi::postOutputXML("models/". $modelId . '/SBML', $accessToken, json_encode(['dataset' => $dataset]));
         if (!$data) {
             throw new OperationFailedException('Failed to get the model from the DATA api.');
         }
