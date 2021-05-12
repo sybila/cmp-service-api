@@ -234,7 +234,7 @@ class Implementation {
      * @return string
      * @throws AccessForbiddenException|OperationFailedException
      */
-    static function variableCourse(string $accessToken, ExperimentId $experiment, VariableId $variable): string
+    static function variableMonotonicity(string $accessToken, ExperimentId $experiment, VariableId $variable): string
     {
         $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
@@ -375,9 +375,13 @@ class Implementation {
     /**
      * @param string $accessToken
      * @param ExperimentId $experiment1
+     * [group=Variable1]
      * @param VariableId $variable1
+     * [group=Variable1]
      * @param ExperimentId $experiment2
+     * [group=Variable2]
      * @param VariableId $variable2
+     * [group=Variable2]
      * @return float|int
      * @throws AccessForbiddenException
      * @throws OperationFailedException
@@ -407,7 +411,19 @@ class Implementation {
         return $corr;
     }
 
-    static function variablePolynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree): array {
+    /**
+     * @param string $accessToken
+     * @param ExperimentId $experiment
+     * [group=Experiment]
+     * @param VariableId $variable
+     * [group=Experiment]
+     * @param int $maximumDegree
+     * [unsigned=true]
+     * @return array
+     * @throws AccessForbiddenException
+     * @throws OperationFailedException
+     */
+    static function variablePolynomialRegression(string $accessToken, ExperimentId $experiment, VariableId $variable, int $maximumDegree=3): array {
         $timeSeries = AnalysisLib::getVariableTimeSeries($accessToken, $experiment, $variable);
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
