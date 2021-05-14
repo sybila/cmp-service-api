@@ -13,7 +13,9 @@ class Implementation {
      * The mean of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment Experiment identifier
+     * [group=Variable]
      * @param VariableId $variable Variable identifier
+     * [group=Variable]
      * @return float Return decimal number mean of variable data.
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -27,7 +29,9 @@ class Implementation {
      * the maximum value of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -41,7 +45,9 @@ class Implementation {
      * the minimum value of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -55,7 +61,9 @@ class Implementation {
      * The median of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return mixed
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -70,7 +78,9 @@ class Implementation {
      * The variance of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @param bool $isWholePopulation Are data measured for whole population?
      * @return float|int
      * @throws AccessForbiddenException
@@ -94,7 +104,9 @@ class Implementation {
      * The standard deviation of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @param bool $isWholePopulation Are data measured for whole population?
      * @return float
      * @throws AccessForbiddenException
@@ -110,9 +122,13 @@ class Implementation {
      * The mean of two variables. Result is new time series.
      * @param string $accessToken
      * @param ExperimentId $experiment1 First experiment.
+     * [group=Variable1]
      * @param VariableId $variable1 Variable of first experiment.
+     * [group=Variable1]
      * @param ExperimentId $experiment2 Second experiment.
+     * [group=Variable2]
      * @param VariableId $variable2 Variable of second experiment.
+     * [group=Variable2]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -144,9 +160,13 @@ class Implementation {
      * The mean of two variables. Result is new time series.
      * @param string $accessToken
      * @param ExperimentId $experiment1 First experiment.
+     * [group=Variable1]
      * @param VariableId $variable1 Variable of first experiment.
+     * [group=Variable1]
      * @param ExperimentId $experiment2 Second experiment.
+     * [group=Variable2]
      * @param VariableId $variable2 Variable of second experiment.
+     * [group=Variable2]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -178,7 +198,9 @@ class Implementation {
      * The linear regression of one variable. Intersects the data with a straight line.
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -202,9 +224,13 @@ class Implementation {
     /**
      * @param string $accessToken
      * @param ExperimentId $experiment1
+     * [group=Variable1]
      * @param VariableId $variable1
+     * [group=Variable1]
      * @param ExperimentId $experiment2
+     * [group=Variable2]
      * @param VariableId $variable2
+     * [group=Variable2]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -230,7 +256,9 @@ class Implementation {
     /**
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return string
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -252,7 +280,9 @@ class Implementation {
     /**
      * @param string $accessToken
      * @param ExperimentId $experiment
+     * [group=Variable]
      * @param VariableId $variable
+     * [group=Variable]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -262,14 +292,6 @@ class Implementation {
         $times = array_keys($timeSeries);
         $values = array_values($timeSeries);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($times, $values);
-        /*$time = min($times);
-        $maxTime = max($times);
-        $step = ($maxTime - $time) / 100;
-        while($time <= $maxTime){
-            $value = $a * exp($r * $time);
-            $exponentialRegressionTimeSeries[] = array('time' => $time, 'value' => $value);
-            $time += $step;
-        }*/
         $exponentialValues = [];
         foreach($times as $time){
             $exponentialValues[] = $a * exp($r * $time);;
@@ -286,9 +308,13 @@ class Implementation {
     /**
      * @param string $accessToken
      * @param ExperimentId $experiment1
+     * [group=Variable1]
      * @param VariableId $variable1
+     * [group=Variable1]
      * @param ExperimentId $experiment2
+     * [group=Variable2]
      * @param VariableId $variable2
+     * [group=Variable2]
      * @return array
      * @throws AccessForbiddenException|OperationFailedException
      */
@@ -298,15 +324,6 @@ class Implementation {
         $xValues = array_values($timeSeries1);
         $yValues = array_values($timeSeries2);
         list($a, $r) = AnalysisLib::exponentialLeastSquareMethod($xValues, $yValues);
-        /*$exponentialRegression = array();
-        $xMax = max($xValues);
-        $step = $xMax / 100;
-        $x = 0;
-        while ($x < $xMax){
-            $y = $a * exp($r * $x);
-            $exponentialRegression[] = array('x' => $x, 'y' => $y);
-            $x += $step;
-        }*/
         $exponentialValues = [];
         foreach($xValues as $time){
             $exponentialValues[] = $a * exp($r * $time);;
