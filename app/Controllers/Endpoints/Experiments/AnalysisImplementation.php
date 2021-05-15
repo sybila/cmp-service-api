@@ -10,6 +10,19 @@ use VariableId;
 class Implementation {
 
     /**
+     * @param string $accessToken
+     * @param int $arg1 Popis  prvniho  argumentu.
+     * [group=~skupina]
+     * @param bool $arg2 Popis  druheho  argumentu.
+     * @param string $argN Popis  n-teho  argumentu.
+     * @return string Popis vystupu.
+     */
+    static function nazevAnalyzy(string $accessToken, int $arg1, bool $arg2, string $argN="defaultniHodnota"): string
+    {
+        return "Vysledek analyzy";
+    }
+
+    /**
      * The mean of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment Experiment identifier
@@ -479,18 +492,5 @@ class Implementation {
             $times, $values, $polynomialRegression
         );
         return AnalysisLib::visualizeResult($experiment, "Polynomial Regression", $data, $legend);
-    }
-
-    /**
-     * @param string $accessToken
-     * @param int $arg1 Popis  prvniho  argumentu.
-     * [group=~skupina]
-     * @param bool $arg2 Popis  druheho  argumentu.
-     * @param string $argN Popis  n-teho  argumentu.
-     * @return string Popis vystupu.
-     */
-    static function nazevAnalyzy(string $accessToken, int $arg1, bool $arg2, string $argN="defaultniHodnota"): string
-    {
-        return "Výsledek analýzy.";
     }
 }
