@@ -38,6 +38,9 @@ class ImportSBML extends AbstractController
         preg_match_all('/(?<=<notes>).*?(?=<\/notes>)/s', $body, $this->notes);
         preg_match_all('/(<math).*?(\/math>)/s', $body, $this->maths);
         $body = preg_replace('/(?<=<notes>).*?(?=<\/notes>)/s', '<notes></notes>', $body);
+        if ($body === null) {
+            throw new BadFileFormat('SBML lvl >= 2');
+        }
         $modelContent = json_decode($this->convert($body), true);
         //return self::formatOk($response, $modelContent['sbml']['model']['listOfRules']);
         if ($modelContent['sbml']['level'] >= 2) {
@@ -45,21 +48,12 @@ class ImportSBML extends AbstractController
         } else {
             throw new BadFileFormat('SBML lvl >= 2');
         }
-        $rsp = DataApi::post('models/import', json_encode($modelContent['sbml']['model']), $access_token);
+        $response = self::formatOk($response, $modelContent['sbml']['model']);
+        $rsp = DataApi::post('models/import', json_encode(['data' => $modelContent['sbml']['model']]), $access_token);
+        dump($rsp);exit;
         return self::formatOk($response, $modelContent['sbml']['model']);
     }
 
-    protected function cMathMLtoLatex($expression)
-    {
-        foreach ($expression as $key => $value) {
-            if (!is_array($value)){
-                dump($key, $value);
-            } else {
-                dump($key);
-                $this->cMathMLtoLatex($value);
-            }
-        }
-    }
 
     protected function adjustAssArray(&$content)
     {
