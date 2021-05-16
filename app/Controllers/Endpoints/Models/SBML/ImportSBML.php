@@ -4,6 +4,7 @@ namespace Controllers\Endpoints;
 
 use App\Exceptions\AccessForbiddenException;
 use App\Exceptions\BadFileFormat;
+use App\Exceptions\DataAPIException;
 use App\Exceptions\InvalidTypeException;
 use App\Exceptions\MalformedInputException;
 use App\Helpers\ArgumentParser;
@@ -55,7 +56,7 @@ class ImportSBML extends AbstractController
             unset($rsp['code']);
             return self::formatOk($response, $rsp);
         } else {
-            throw new BadFileFormat('SBML');
+            throw new DataAPIException($rsp['message'],$rsp['code']);
         }
     }
 
