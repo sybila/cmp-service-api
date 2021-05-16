@@ -142,7 +142,8 @@ class AnalysisManager extends AbstractController
                     array('key' => $param->name,
                         'name' => self::convertMethodNameToAnalysisName($param->name),
                         'type' => '' . $param->getType(),
-                        'description' => self::combString($description['description']),
+                        'description' => $description['description'] != null && $description['description'] != "" ?
+                            self::combString($description['description']) : null,
                     ));
             }
         }
@@ -154,10 +155,12 @@ class AnalysisManager extends AbstractController
                 'inputs' => $group];
         }
         return array('name' => $name,
-            'description' => self::combString($methodDescription),
+            'description' => $methodDescription != null && $methodDescription != ""?
+                self::combString($methodDescription) : null,
             'inputGroups' => $result,
             'output' => array('type'=>''. $f->getReturnType(),
-                'description'=> self::combString($outputDescription)));
+                'description' => $outputDescription != null && $outputDescription != ""?
+                    self::combString($outputDescription) : null));
     }
 
     /**
