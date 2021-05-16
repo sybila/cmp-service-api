@@ -50,8 +50,13 @@ class ImportSBML extends AbstractController
         }
         $response = self::formatOk($response, $modelContent['sbml']['model']);
         $rsp = DataApi::post('models/import', json_encode(['data' => $modelContent['sbml']['model']]), $access_token);
-        dump($rsp);exit;
-        return self::formatOk($response, $modelContent['sbml']['model']);
+        if ($rsp['code'] === 200) {
+            unset($rsp['status']);
+            unset($rsp['code']);
+            return self::formatOk($response, $rsp);
+        } else {
+            throw new BadFileFormat('SBML');
+        }
     }
 
 
