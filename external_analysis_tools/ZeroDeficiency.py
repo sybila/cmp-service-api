@@ -3,7 +3,7 @@
 """
 Created on Mon May  3 09:21:41 2021
 
-@author: satanio
+@author: Radoslav Doktor
 """
 # Python program to print connected
 # components in an undirected graph
