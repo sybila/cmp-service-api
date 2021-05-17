@@ -1,6 +1,6 @@
 #!/usr/bin/env nodejs
 /**
- * Created by satanio on 27/11/2020.
+ * Created by Radoslav Doktor on 27/11/2020.
  */
  
  global.Buffer = global.Buffer || require('buffer').Buffer;

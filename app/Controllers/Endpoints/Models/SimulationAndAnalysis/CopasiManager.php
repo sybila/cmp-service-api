@@ -14,6 +14,11 @@ use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+/**
+ * Class Copasi
+ * @package Controllers\Endpoints
+ * @author Radoslav Doktor
+ */
 class Copasi
 {
     private $binaryPath = '../external_analysis_tools/third_party/copasi/bin/CopasiSE';
@@ -135,65 +140,6 @@ class Copasi
             $solver->setAttribute('name', "Deterministic ($detSolver)");
         }
 
-//        $lCompartments = $xpath->query("/x:COPASI/x:Model/x:ListOfCompartments/x:Compartment");
-
-
-//        foreach($lCompartments as $item) {
-//            $key = $item->getAttribute("key");
-//            $name = $item->getAttribute("name");
-//            $Cs[$key] = $name;
-//        }
-//
-//
-//        $lMetabolites = $xpath->query("/x:COPASI/x:Model/x:ListOfMetabolites/x:Metabolite");
-//
-//        foreach($lMetabolites as $item) {
-//            $name = $item->getAttribute("name");
-//            $compartment = $item->getAttribute("compartment");
-//            foreach($Cs as $k => $itemCs) {
-//                if($k==$compartment) {
-//                    $c = $itemCs;
-//                }
-//            }
-//            $Ms[$name] = $c;
-//        }
-
-//        $lReports = $xpath->query("/x:COPASI/x:ListOfReports");
-//
-//        foreach($lReports as $item) {
-//            $rpt = $cps->createElement('Report');
-//            $rpt->setAttribute("key", "rpt");
-//            $rpt->setAttribute("name", "Time");
-//            $rpt->setAttribute("taskType", "timeCourse");
-//            $rpt->setAttribute("separator", " ");
-//            $rpt->setAttribute("precision", "6");
-//
-//            $table = $cps->createElement('Table');
-//            $table->setAttribute("printTitle", "1");
-//
-//            //smycka
-//            $contentCN="CN=Root,Model=NoName,Reference=Time";
-//            $object = $cps->createElement('Object');
-//            $object->setAttribute("cn", "{$contentCN}");
-//            $table->appendChild($object);
-
-//            foreach($Ms as $k => $itemMs) {
-//                $contentCN="CN=Root,Model=NoName,Vector=Compartments[";
-//                $contentCN.=$itemMs;
-//                $contentCN.="],Vector=Metabolites[";
-//                $contentCN.=$k;
-//                $contentCN.="],Reference=Concentration";
-//                $object = $cps->createElement('Object');
-//                $object->setAttribute("cn", "{$contentCN}");
-//                $table->appendChild($object);
-//            }
-
-
-//            $rpt->appendChild($table);
-//
-//
-//            $item->appendChild($rpt);
-//        }
 
         $cps->save($this->cpsPath);
 
@@ -225,12 +171,7 @@ class Copasi
         $cps = new DOMDocument();
 
         if(!@$cps->load($this->cpsPath) || (filesize($this->cpsPath) < 100))
-        {
-//            $output['error'] = file_get_contents($output['errorFile']);
-//            $output['error'] .= "Failed to load file: {$output['sourceFile']}";
-//
-//            return $output;
-        }
+        {        }
 
         $xpath = new DOMXpath($cps);
 
@@ -238,11 +179,7 @@ class Copasi
         $lTask = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Moieties']");
 
         foreach($lTask as $item) {
-//            $old_el = $item->getElementsByTagName('Problem')->item(0);
-//            $new_el = $cps->createElement('Report');
-//            $item->replaceChild($new_el, $old_el);
             $item->setAttribute("scheduled", "true");
-
         }
 
         $lTask = $xpath->query("/x:COPASI/x:ListOfTasks/x:Task[@name='Moieties']/x:Report");
@@ -362,6 +299,7 @@ class Copasi
 /**
  * Class CopasiImplementation prepares outputs from CopasiManager class and outputs them.
  * @package Controllers\Endpoints
+ * @author Radoslav Doktor
  */
 class CopasiImplementation
 {

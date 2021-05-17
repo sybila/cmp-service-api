@@ -15,6 +15,11 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use XSLTProcessor;
 
+/**
+ * Class ImportSBML
+ * @package Controllers\Endpoints
+ * @author Radoslav Doktor
+ */
 class ImportSBML extends AbstractController
 {
     protected $notes = [];
