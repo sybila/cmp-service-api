@@ -477,7 +477,7 @@ class Implementation {
             $targets[$i] = $y;
         }
         $polynomialRegression = array();
-        $coefficients = AnalysisLib::cramersRule($matrix, $targets);
+        $coefficients = AnalysisLib::solveSystemOfEquations($matrix, $targets);
         foreach($times as $time){
             $value = 0;
             for($i = 0; $i < $maximumDegree; $i++){

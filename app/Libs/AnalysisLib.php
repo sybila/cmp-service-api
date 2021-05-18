@@ -179,21 +179,45 @@ class AnalysisLib{
         return array($a, $r);
     }
 
-    public static function cramersRule(array $matrix, array $b){
-        $M = MatrixFactory::create($matrix);
-        $size = $M->getM();
-        $coefficients = array();
-        for($i = 0; $i < $size; $i++){
-            $Mi = $matrix;
-            for($j = 0; $j < $size; $j++){
-                $Mi[$j][$i] = $b[$j];
+    public static function solveSystemOfEquations($A, $x): array
+    {
+        for ($i = 0; $i < count($A); $i++) {
+            $A[$i][] = $x[$i];
+        }
+        $n = count($A);
+        for ($i = 0; $i < $n; $i++) {
+            $maxEl  = abs($A[$i][$i]);
+            $maxRow = $i;
+            for ($k = $i + 1; $k < $n; $k++) {
+                if (abs($A[$k][$i]) > $maxEl) {
+                    $maxEl  = abs($A[$k][$i]);
+                    $maxRow = $k;
+                }
             }
-            $Mi = MatrixFactory::create($Mi);
-            //echo $Mi->det() . "\n";
-            $ci = $Mi->det() / $M->det();
-            $coefficients[$i] = $ci;
-        } //exit;
-        return $coefficients;
+            for ($k = $i; $k < $n + 1; $k++) {
+                $tmp            = $A[$maxRow][$k];
+                $A[$maxRow][$k] = $A[$i][$k];
+                $A[$i][$k]      = $tmp;
+            }
+            for ($k = $i + 1; $k < $n; $k++) {
+                $c = -$A[$k][$i] / $A[$i][$i];
+                for ($j = $i; $j < $n + 1; $j++) {
+                    if ($i == $j) {
+                        $A[$k][$j] = 0;
+                    } else {
+                        $A[$k][$j] += $c * $A[$i][$j];
+                    }
+                }
+            }
+        }
+        $x = array_fill(0, $n, 0);
+        for ($i = $n - 1; $i > -1; $i--) {
+            $x[$i] = $A[$i][$n] / $A[$i][$i];
+            for ($k = $i - 1; $k > -1; $k--) {
+                $A[$k][$n] -= $A[$k][$i] * $x[$i];
+            }
+        }
+        return $x;
     }
 
     public static function visualizeResult(ExperimentId $expId, string $analysisName, array $data, array $legend): array
