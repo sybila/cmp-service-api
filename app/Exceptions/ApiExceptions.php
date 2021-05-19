@@ -343,6 +343,27 @@ class BadFileFormat extends ApiException
             ->setMessage("File in a bad format. Supported format: %s", $requestedFormat);
     }
 }
+class BodyInBadFormat extends ApiException
+{
+    const CODE = 422;
+
+    public function __construct(Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage("Body in bad format.");
+    }
+}
+
+class CountingError extends ApiException
+{
+    const CODE = 500;
+
+    public function __construct(string $msg, Throwable $previous = null)
+    {
+        parent::__construct($previous)
+            ->setMessage($msg);
+    }
+}
 class DataAPIException extends ApiException
 {
 

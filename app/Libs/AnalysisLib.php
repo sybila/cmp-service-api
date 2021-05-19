@@ -1,6 +1,7 @@
 <?php
 namespace Libs;
 use App\Exceptions\AccessForbiddenException;
+use App\Exceptions\CountingError;
 use App\Exceptions\OperationFailedException;
 use ExperimentId;
 use Kachkaev\PHPR\Engine\CommandLineREngine;
@@ -215,6 +216,11 @@ class AnalysisLib{
             $x[$i] = $A[$i][$n] / $A[$i][$i];
             for ($k = $i - 1; $k > -1; $k--) {
                 $A[$k][$n] -= $A[$k][$i] * $x[$i];
+            }
+        }
+        foreach($x as $coefficient){
+            if(is_nan($coefficient)){
+                throw new CountingError("Too large matrix degree.");
             }
         }
         return $x;
