@@ -21,7 +21,8 @@
 		"gtjamesa/php-zscore" : "*",
 		"markrogoyski/math-php": "1.*",
 		"mcordingley/linearalgebra": "^2.1.0",
-		"ext-xsl": "*"
+		"ext-xsl": "*",
+		"ext-libxml": "*"
 	},
 	"autoload": {
 		"classmap": ["app/"]
