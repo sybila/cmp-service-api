@@ -10,19 +10,6 @@ use VariableId;
 class Implementation {
 
     /**
-     * @param string $accessToken
-     * @param int $arg1 Popis  prvniho  argumentu.
-     * [group=~skupina]
-     * @param bool $arg2 Popis  druheho  argumentu.
-     * @param string $argN Popis  n-teho  argumentu.
-     * @return string Popis vystupu.
-     */
-    static function nazevAnalyzy(string $accessToken, int $arg1, bool $arg2, string $argN="defaultniHodnota"): string
-    {
-        return "Vysledek analyzy";
-    }
-
-    /**
      * The mean of one variable.
      * @param string $accessToken
      * @param ExperimentId $experiment Experiment identifier
@@ -477,7 +464,7 @@ class Implementation {
             $targets[$i] = $y;
         }
         $polynomialRegression = array();
-        $coefficients = AnalysisLib::cramersRule($matrix, $targets);
+        $coefficients = AnalysisLib::solveSystemOfEquations($matrix, $targets);
         foreach($times as $time){
             $value = 0;
             for($i = 0; $i < $maximumDegree; $i++){
