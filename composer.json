@@ -20,7 +20,8 @@
 		"ext-zip": "*",
 		"gtjamesa/php-zscore" : "*",
 		"markrogoyski/math-php": "1.*",
-		"mcordingley/linearalgebra": "^2.1.0"
+		"mcordingley/linearalgebra": "^2.1.0",
+		"ext-xsl": "*"
 	},
 	"autoload": {
 		"classmap": ["app/"]
