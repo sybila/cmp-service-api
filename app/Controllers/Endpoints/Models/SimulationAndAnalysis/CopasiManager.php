@@ -372,7 +372,7 @@ class CopasiImplementation
         foreach ($allTables[0] as $row) {
             if (substr($row, 0, 3) === ' & ') {
                 $table .= '\end{array}';
-                array_push($tables, $table);
+                array_push($tables, addcslashes($table, '_^'));
                 $tableDefined = false;
             }
             if (!$tableDefined) {
@@ -383,7 +383,7 @@ class CopasiImplementation
             $table .= $row . ' \\\\ \hline ';
         }
         $table .= '\end{array}';
-        array_push($tables, $table);
+        array_push($tables, addcslashes($table, '_^'));
         $result = '$';
         if (!is_null($tables[1]))
         {
