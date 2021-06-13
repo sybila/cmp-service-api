@@ -447,7 +447,7 @@ class CopasiImplementation
             return explode(' & ', $row);
         }, explode(' \\\\ \hline', $tables[1])));
 
-        return new LaTeX('$' . $tables[1] . '\newline \textbf{' . implode("\n", $result) . '}$');
+        return new LaTeX('$' . $tables[1] . '\newline \textrm{' . implode("\n", $result) . '}$');
     }
 
 }
