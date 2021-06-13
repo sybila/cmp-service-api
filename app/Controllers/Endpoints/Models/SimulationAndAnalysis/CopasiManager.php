@@ -448,7 +448,7 @@ class CopasiImplementation
         }, explode(' \\\\ \hline', $tables[1])));
 
         $result = '$ \textrm{Applying Deficiency Zero Theorem on:} \\\\ ';
-        $result .= $tables[1] . '\newline \textbf{' . implode("\n", $scriptResult) . '}$';
+        $result .= $tables[1] . ' \\\\ \textbf{' . implode("\n", $scriptResult) . '}$';
         return new LaTeX($result);
     }
 
