@@ -415,7 +415,7 @@ class CopasiImplementation
      * @return LaTeX LaTeX
      * @throws OperationFailedException
      */
-    static function zeroDeficiency(string $accessToken, int $modelId): LaTeX
+    static function deficiencyZero(string $accessToken, int $modelId): LaTeX
     {
         $task = new Copasi();
         $task->createCopasiSource($modelId, $accessToken);
@@ -429,7 +429,7 @@ class CopasiImplementation
         foreach ($allTables[0] as $row) {
             if (substr($row, 0, 3) === ' & ') {
                 $table .= '\end{array}';
-                array_push($tables, $table);
+                array_push($tables, addcslashes($table, '_^'));
                 $tableDefined = false;
             }
             if (!$tableDefined) {
@@ -441,13 +441,15 @@ class CopasiImplementation
         }
 
         $table .= '\end{array}';
-        array_push($tables, $table);
+        array_push($tables,  addcslashes($table, '_^'));
 
-        $result = $task->getZeroDeficiency(array_map(function (string $row){
+        $scriptResult = $task->getZeroDeficiency(array_map(function (string $row){
             return explode(' & ', $row);
         }, explode(' \\\\ \hline', $tables[1])));
 
-        return new LaTeX('$' . $tables[1] . '\newline \textrm{' . implode("\n", $result) . '}$');
+        $result = '$ \textrm{Applying Deficiency Zero Theorem on:} \\\\ ';
+        $result .= $tables[1] . '\newline \textbf{' . implode("\n", $scriptResult) . '}$';
+        return new LaTeX($result);
     }
 
 }

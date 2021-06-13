@@ -71,7 +71,7 @@ def getStochDistinctComplexes(matrix):
 
     if len((list(list(set(reactants)-set(products)) 
                 + list(set(products)-set(reactants))))) != 0:
-        print('This system is not weakly reversible, and therefore zero deficiency theorem cannot be applied.');
+        print('This system is not weakly reversible, and therefore Deficiency Zero Theorem cannot be applied.');
         sys.exit(2)
     subs = 0;
     for p, element in enumerate(reactants):
