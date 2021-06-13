@@ -354,6 +354,7 @@ class CopasiImplementation
     /**
      * @param string $accessToken
      * @param int $modelId
+     * [group=automatic]
      * @return LaTeX
      * @throws OperationFailedException
      */
@@ -370,34 +371,47 @@ class CopasiImplementation
         $tableDefined = false;
         foreach ($allTables[0] as $row) {
             if (substr($row, 0, 3) === ' & ') {
-                $table .= '\end{tabular}' . '\end{table}';
+                $table .= '\end{array}';
                 array_push($tables, $table);
                 $tableDefined = false;
             }
             if (!$tableDefined) {
-                $table = '\begin{table}[] \centering ';
-                $rowDef = str_repeat("l|", substr_count($row, ' & ') + 1);
-                $table .= '\begin{tabular}{|' . $rowDef . '} \hline ';
+                $rowDef = str_repeat('c|', substr_count($row, ' & '));
+                $table = '\begin{array}{' . $rowDef . 'c} \hline ';
                 $tableDefined = true;
             }
             $table .= $row . ' \\\\ \hline ';
         }
-        $table .= '\end{tabular}' . '\end{table}';
+        $table .= '\end{array}';
         array_push($tables, $table);
-
-        foreach ($tables as $key => $table){
-            if ($key == 0){
-                $data = "Moieties Result: \n " . $table . strstr($data, 'Stoichiometry');
-            } else {
-                $data = preg_replace('/\n & .*\n\n/sU', $table, $data, 1);
-            }
+        $result = '$';
+        if (!is_null($tables[1]))
+        {
+            $result .= '\textbf{Stoichiometry Matrix} \\\\ \textit{Rows: Species that are controlled by reactions} \\\\ ' .
+                '\textit{Columns: Reactions} \\\\ ' . $tables[1] . ' \\\\ \textbf{ } \\\\ ';
         }
-        return new LaTeX($data);
+        if (!is_null($tables[0]))
+        {
+            $result .= '\textbf{Moieties Result} \\\\ ' . $tables[0] . ' \\\\ \textbf{ } \\\\ ';
+        }
+        if (!is_null($tables[2]))
+        {
+            $result .= '\textbf{Link Matrix} \\\\ \textit{Rows: Species that are controlled by reactions (full system)} \\\\ ' .
+                '\textit{Species (reduced system)} \\\\ ' . $tables[2] . ' \\\\ \textbf{ } \\\\ ';
+        }
+        if (!is_null($tables[3]))
+        {
+            $result .= '\textbf{Reduced stoichiometry Matrix} \newline \textit{Rows: Species (reduced system)} \newline ' .
+                '\textit{Columns: Reactions} \\\\ ' . $tables[3] . ' \\\\ ';
+        }
+        $result .= '$';
+        return new LaTeX($result);
     }
 
     /**
      * @param string $accessToken
      * @param int $modelId
+     * [group=automatic]
      * @return LaTeX LaTeX
      * @throws OperationFailedException
      */
@@ -414,28 +428,26 @@ class CopasiImplementation
         $tableDefined = false;
         foreach ($allTables[0] as $row) {
             if (substr($row, 0, 3) === ' & ') {
-                $table .= '\end{tabular}' . '\end{table}';
+                $table .= '\end{array}';
                 array_push($tables, $table);
                 $tableDefined = false;
             }
             if (!$tableDefined) {
-                $table = '\begin{table}[] \centering ';
-                $rowDef = str_repeat("l|", substr_count($row, ' & ') + 1);
-                $table .= '\begin{tabular}{|' . $rowDef . '} \hline ';
+                $rowDef = str_repeat('c|', substr_count($row, ' & '));
+                $table = '\begin{array}{' . $rowDef . 'c} \hline ';
                 $tableDefined = true;
             }
             $table .= $row . ' \\\\ \hline ';
         }
-        $table .= '\end{tabular}' . '\end{table}';
+
+        $table .= '\end{array}';
         array_push($tables, $table);
 
         $result = $task->getZeroDeficiency(array_map(function (string $row){
             return explode(' & ', $row);
         }, explode(' \\\\ \hline', $tables[1])));
 
-        return new LaTeX($tables[1] . '\newline ' . implode("\n", $result));
+        return new LaTeX('$' . $tables[1] . '\newline \textbf{' . implode("\n", $result) . '}$');
     }
-
-
 
 }
