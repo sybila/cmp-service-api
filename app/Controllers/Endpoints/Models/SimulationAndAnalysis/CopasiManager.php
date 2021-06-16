@@ -315,7 +315,7 @@ class CopasiImplementation
      * [unsigned=true]
      * @param float $stepSize size of the steps
      * @param float $outputStartTime time when the output starts showing
-     * @param bool $outputEvents Do you wish to include events in the simulation?
+     * @param bool $applyEvents Do you wish to trigger events in the simulation?
      * @param string|null $solver
      * [group=~advanced]
      * @param bool $integrateReducedModel Shall the integration be performed using the mass conservation laws?
@@ -333,12 +333,12 @@ class CopasiImplementation
      */
     static function simulation(string $accessToken, int $modelId, array $dataset, float $duration=500,
                                int $stepNumber=500,
-                               float $stepSize=1, float $outputStartTime=0, bool $outputEvents=true, string $solver="LSODA",
+                               float $stepSize=1, float $outputStartTime=0, bool $applyEvents=true, string $solver="LSODA",
                                bool $integrateReducedModel=true, float $relativeTolerance=1.0e-06, float $absoluteTolerance=1.0e-12,
                                float $maxInternalSteps=10000, float $maxInternalStepSize=0) :array
     {
         $time_course_settings = ['stepNumber' => $stepNumber, 'stepSize' => $stepSize, 'duration' =>  $duration,
-            'outputStartTime' => $outputStartTime, 'outputEvents' => $outputEvents,
+            'outputStartTime' => $outputStartTime, 'outputEvents' => $applyEvents,
             'integrateReducedModel' => $integrateReducedModel, 'relativeTolerance' => $relativeTolerance,
             'absoluteTolerance' => $absoluteTolerance, 'maxInternalSteps' => $maxInternalSteps,
             'maxInternalStepSize' => $maxInternalStepSize];

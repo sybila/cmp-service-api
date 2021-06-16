@@ -48,7 +48,6 @@ class ImportSBML extends AbstractController
             throw new BadFileFormat('SBML lvl >= 2');
         }
         $modelContent = json_decode($this->convert($body), true);
-        //return self::formatOk($response, $modelContent['sbml']['model']['listOfRules']);
         if ($modelContent['sbml']['level'] >= 2) {
             $this->adjustAssArray($modelContent['sbml']['model']);
         } else {
