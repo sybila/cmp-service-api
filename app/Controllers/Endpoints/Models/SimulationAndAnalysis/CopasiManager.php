@@ -448,7 +448,7 @@ class CopasiImplementation
         }, explode(' \\\\ \hline', $tables[1])));
 
         $result = '$ \textrm{Applying Deficiency Zero Theorem on:} \\\\ ';
-        $res = str_replace('|','} \\\\\textbf{', implode("\n", $scriptResult));
+        $res = str_replace('|','}\\\\\textbf{', implode("\n", $scriptResult));
         $result .= $tables[1] . ' \\\\ \textbf{ } \\\\ \textbf{' . $res . '}$';
         return new LaTeX($result);
     }

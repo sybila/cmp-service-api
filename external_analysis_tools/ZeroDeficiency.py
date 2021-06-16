@@ -98,7 +98,7 @@ def main(argv):
     for j, element in enumerate(reactants):
         g.addEdge(element, products[j])
     l = len(g.connectedComponents())
-    print("This is a weakly reversible deficiency zero network, with:")
+    print("This is a weakly reversible deficiency zero network, with:|")
     print("n = " + str(n) + " stoichiometric distinct complexes,|")
     print("l = " + str(l) + " linkage classes,|")
     print("s = " + str(s) + " dimensions,|")
