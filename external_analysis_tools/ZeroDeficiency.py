@@ -98,11 +98,11 @@ def main(argv):
     for j, element in enumerate(reactants):
         g.addEdge(element, products[j])
     l = len(g.connectedComponents())
-    print("Deficiency = " + str(n - l - s))
+    print("Deficiency = " + str(n - l - s) + ", ")
     if (n - l - s) == 0:
-        print("This is a weakly reversible deficiency zero network," + 
+        print("this is a weakly reversible deficiency zero network," +
               " and therefore this mass action system is " +
-              "complex balanced and exhibits " +
+              "complex balanced} \\\\ \textbf{ } \\\\ \textbf{and exhibits " +
               "locally stable dynamics, for all rate constant choices." )
     else:
         print("This system is weakly reversible, but no other conclusion can be made. ")
