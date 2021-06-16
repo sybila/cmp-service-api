@@ -98,14 +98,14 @@ def main(argv):
     for j, element in enumerate(reactants):
         g.addEdge(element, products[j])
     l = len(g.connectedComponents())
-    print("n = " + n + " stoichiometric distinct complexes,|")
-    print("l = " + l + " linkage classes,|")
-    print("s = " + s + " dimensions,|")
+    print("n = " + str(n) + " stoichiometric distinct complexes,|")
+    print("l = " + str(l) + " linkage classes,|")
+    print("s = " + str(s) + " dimensions,|")
     print("Deficiency = n - l - s = " + str(n - l - s) + ",|")
     if (n - l - s) == 0:
         print("this is a weakly reversible deficiency zero network,|" +
               " and therefore this mass action system is complex balanced.|" +
-              + "It exhibits locally stable dynamics, for all rate constant choices." )
+              "It exhibits locally stable dynamics, for all rate constant choices." )
     else:
         print("This system is weakly reversible, but no other conclusion can be made. ")
 
