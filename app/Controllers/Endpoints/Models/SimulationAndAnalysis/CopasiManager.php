@@ -63,7 +63,7 @@ class Copasi
 
         $xpath->registerNamespace('x', "http://www.copasi.org/static/schema");
 
-        if ($timeCourseSettings['outputEvents']) {
+        if (!$timeCourseSettings['outputEvents']) {
             $events = $xpath->query("/x:COPASI/x:Model/x:ListOfEvents")->item(0);
             $events->parentNode->removeChild($events);
         }
