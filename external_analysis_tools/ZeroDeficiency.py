@@ -102,7 +102,7 @@ def main(argv):
     if (n - l - s) == 0:
         print("this is a weakly reversible deficiency zero network," +
               " and therefore this mass action system is " +
-              "complex balanced} \\\\ \textbf{ } \\\\ \textbf{and exhibits " +
+              "complex balanced and exhibits " +
               "locally stable dynamics, for all rate constant choices." )
     else:
         print("This system is weakly reversible, but no other conclusion can be made. ")
