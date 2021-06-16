@@ -104,7 +104,7 @@ def main(argv):
     print("Deficiency = n - l - s = " + str(n - l - s) + ",|")
     if (n - l - s) == 0:
         print("this is a weakly reversible deficiency zero network,|" +
-              " and therefore this mass action system is complex balanced.|
+              " and therefore this mass action system is complex balanced.|" +
               + "It exhibits locally stable dynamics, for all rate constant choices." )
     else:
         print("This system is weakly reversible, but no other conclusion can be made. ")
