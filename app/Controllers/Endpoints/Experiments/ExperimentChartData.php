@@ -158,7 +158,7 @@ class ExperimentChartData extends ExperimentAccess
             'id' => $this->expId,
             'name' => $name,
             "xAxisName"=>"Time",
-            "yAxisName"=>"Species [molecules/cell]",
+            "yAxisName"=>"Species [people]",
             "datasets"=>[[
                 "name" => $name,
                     "data"=>$data

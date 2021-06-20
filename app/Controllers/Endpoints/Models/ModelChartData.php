@@ -88,7 +88,7 @@ class ModelChartData
             'id' => $this->modelId,
             'name' => $this->modelName,
             "xAxisName"=>"Time",
-            "yAxisName"=>"Species [molecules/cell]",
+            "yAxisName"=>"Species [people]",
             "datasets"=>[[
                 "name" => $datasetName,
                 "data"=> $data
